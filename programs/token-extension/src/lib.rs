@@ -7,7 +7,6 @@ use anchor_lang::prelude::*;
 
 pub use constants::*;
 pub use instructions::*;
-pub use state::*;
 
 declare_id!("2A4udxjXYzZnJgX65cbVpr3421bpWrrjUBNey1iWrEiy");
 
@@ -15,7 +14,7 @@ declare_id!("2A4udxjXYzZnJgX65cbVpr3421bpWrrjUBNey1iWrEiy");
 pub mod token_extension {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn mint_close_authority(ctx: Context<MintCloseAuthority>, data_len: u64) -> Result<()> {
+        mint_close_authority::handler(ctx, data_len)
     }
 }

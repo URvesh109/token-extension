@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-token_extension = "9RA2FDRozFiQyVMYLo5VbxYyJeHqugtorcS17fa4QHN8"
+token_extension = "2A4udxjXYzZnJgX65cbVpr3421bpWrrjUBNey1iWrEiy"
 
 [registry]
 url = "https://api.apr.dev"

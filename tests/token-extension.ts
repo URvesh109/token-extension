@@ -8,6 +8,7 @@ import {
 } from "@solana/spl-token";
 import * as path from "path";
 import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import { assert } from "chai";
 
 describe("token-extension", () => {
   // Configure the client to use the local cluster.
@@ -21,7 +22,7 @@ describe("token-extension", () => {
   console.log("Mint", mint.publicKey.toBase58());
 
   it(
-    "Is initialized!",
+    "Set mintCloseAuthority!",
     runTest(async () => {
       // Add your test here.
       const tx = await program.methods
@@ -38,12 +39,24 @@ describe("token-extension", () => {
         })
         .transaction();
 
-      const txId = await sendAndConfirmTransaction({
+      await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: tx,
         signers: [admin, mint],
       });
-      console.log("Transaction id", txId);
+
+      const data = await provider.connection.getParsedAccountInfo(
+        mint.publicKey
+      );
+
+      for (const iterator of data.value.data["parsed"]["info"]["extensions"]) {
+        if (iterator["extension"] == "mintCloseAuthority") {
+          assert.strictEqual(
+            iterator["state"]["closeAuthority"],
+            admin.publicKey.toBase58()
+          );
+        }
+      }
     })
   );
 });

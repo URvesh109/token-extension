@@ -48,7 +48,7 @@ impl<'info> MintCloseAuthority<'info> {
     }
 }
 
-pub fn handler(ctx: Context<MintCloseAuthority>, data_len: u64) -> Result<()> {
+pub(crate) fn handler(ctx: Context<MintCloseAuthority>, data_len: u64) -> Result<()> {
     let all = ctx.accounts;
 
     invoke(

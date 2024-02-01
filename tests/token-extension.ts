@@ -22,7 +22,7 @@ describe("token-extension", () => {
   console.log("Mint", mint.publicKey.toBase58());
 
   it(
-    "Set mintCloseAuthority!",
+    "Set mintCloseAuthority and closeMintAccount",
     runTest(async () => {
       // Add your test here.
       const tx = await program.methods
@@ -57,6 +57,27 @@ describe("token-extension", () => {
           );
         }
       }
+
+      const closeAccTx = await program.methods
+        .closeMintAccount()
+        .accounts({
+          mint: mint.publicKey,
+          destination: admin.publicKey,
+          authority: admin.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+        })
+        .transaction();
+
+      await sendAndConfirmTransaction({
+        connection: provider.connection,
+        transaction: closeAccTx,
+        signers: [admin],
+      });
+
+      const deletedMintAcc = await provider.connection.getParsedAccountInfo(
+        mint.publicKey
+      );
+      assert.isNull(deletedMintAcc.value);
     })
   );
 });

@@ -22,4 +22,22 @@ pub mod token_extension {
     pub fn close_mint_account(ctx: Context<CloseMintAccount>) -> Result<()> {
         close_mint_account::handler(ctx)
     }
+
+    pub fn transfer_fee_config(
+        ctx: Context<TransferFeeConfig>,
+        data_len: u64,
+        transfer_fee_config_authority: Option<Pubkey>,
+        withdraw_withheld_authority: Option<Pubkey>,
+        transfer_fee_basis_points: u16,
+        maximum_fee: u64,
+    ) -> Result<()> {
+        transfer_fee::handler(
+            ctx,
+            data_len,
+            transfer_fee_config_authority,
+            withdraw_withheld_authority,
+            transfer_fee_basis_points,
+            maximum_fee,
+        )
+    }
 }

@@ -40,4 +40,12 @@ pub mod token_extension {
             maximum_fee,
         )
     }
+
+    pub fn mint_to(ctx: Context<MintToAccount>, amount: u64) -> Result<()> {
+        transfer_fee::handler_for_mint_to(ctx, amount)
+    }
+
+    pub fn transfer_to(ctx: Context<TransferToAccount>, amount: u64, fee: u64) -> Result<()> {
+        transfer_fee::handler_for_transfer_to_account(ctx, amount, fee)
+    }
 }

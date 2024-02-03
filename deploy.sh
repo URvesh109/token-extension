@@ -2,6 +2,7 @@
 set -euo pipefail
 
 solana airdrop --keypair keypairs/admin.json 100
+solana airdrop --keypair keypairs/receiver.json 100
 
 anchor build --arch sbf
 

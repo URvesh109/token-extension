@@ -2,6 +2,11 @@ import * as anchor from "@coral-xyz/anchor";
 import { readFileSync } from "fs";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import {
+  TOKEN_2022_PROGRAM_ID,
+  getTransferFeeAmount,
+  unpackAccount,
+} from "@solana/spl-token";
 
 export function keypairFromFile(path: string): anchor.web3.Keypair {
   return anchor.web3.Keypair.fromSecretKey(
@@ -25,7 +30,7 @@ export async function sendAndConfirmTransaction({
     transaction,
     signers,
     {
-      commitment: "processed",
+      commitment: "finalized",
     }
   );
 }
@@ -55,4 +60,43 @@ export async function rejectedWith<T>(
   message?: string
 ) {
   await expect(promise).to.be.rejectedWith(constructor, expected, message);
+}
+
+export async function findWithheldTokenAccount({
+  connection,
+  mint,
+}: {
+  connection: anchor.web3.Connection;
+  mint: anchor.web3.PublicKey;
+}): Promise<Array<anchor.web3.PublicKey>> {
+  const allAccounts = await connection.getProgramAccounts(
+    TOKEN_2022_PROGRAM_ID,
+    {
+      commitment: "confirmed",
+      filters: [
+        {
+          memcmp: {
+            offset: 0,
+            bytes: mint.toString(),
+          },
+        },
+      ],
+    }
+  );
+  const accountsToWithdrawFrom = [];
+  for (const accountInfo of allAccounts) {
+    const account = unpackAccount(
+      accountInfo.pubkey,
+      accountInfo.account,
+      TOKEN_2022_PROGRAM_ID
+    );
+    const transferFeeAmount = getTransferFeeAmount(account);
+    if (
+      transferFeeAmount !== null &&
+      transferFeeAmount.withheldAmount > BigInt(0)
+    ) {
+      accountsToWithdrawFrom.push(accountInfo.pubkey);
+    }
+  }
+  return accountsToWithdrawFrom;
 }

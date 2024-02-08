@@ -6,7 +6,7 @@ use anchor_lang::{
 use crate::error::ErrorCode;
 use anchor_spl::{ token_2022::{
     initialize_mint2, InitializeMint2, Token2022, MintTo, mint_to,
-    spl_token_2022::extension::transfer_fee::instruction::{initialize_transfer_fee_config, transfer_checked_with_fee}
+    spl_token_2022::extension::transfer_fee::instruction::{initialize_transfer_fee_config, transfer_checked_with_fee, withdraw_withheld_tokens_from_accounts, harvest_withheld_tokens_to_mint, withdraw_withheld_tokens_from_mint}
 }, token_interface::{TokenInterface, Mint,TokenAccount}};
 
 
@@ -126,7 +126,6 @@ pub struct TransferToAccount<'info> {
     pub to_acc: InterfaceAccount<'info, TokenAccount>,
     pub token_2022_program: Interface<'info, TokenInterface>,
     pub authority: Signer<'info>
-
 }
 
 pub(crate) fn handler_for_transfer_to_account(ctx:Context<TransferToAccount>, amount: u64,fee:u64) -> Result<()> {
@@ -143,5 +142,113 @@ pub(crate) fn handler_for_transfer_to_account(ctx:Context<TransferToAccount>, am
         all.authority.to_account_info(),
         all.token_2022_program.to_account_info(),
     ])?;
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct WithdrawFromWithheldAccount<'info> {
+    #[account(
+        mint::token_program = Token2022::id()
+    )]
+    pub mint: InterfaceAccount<'info, Mint>,
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = authority,
+        associated_token::token_program = Token2022::id()
+    )]
+    pub destination: InterfaceAccount<'info, TokenAccount>,
+    pub token_2022_program: Interface<'info, TokenInterface>,
+    pub authority: Signer<'info>
+
+}
+
+pub(crate) fn handler_for_withdraw_withheld_account<'a>(ctx:Context<'_,'_,'_,'a, WithdrawFromWithheldAccount<'a>>) -> Result<()> {
+    let all = ctx.accounts;
+    let  rem_acc = ctx.remaining_accounts;
+    let mut sources= Vec::new();
+    let mut infos = Vec::new();
+
+    for acc_info in rem_acc {
+        sources.push(acc_info.key);
+        infos.push(acc_info.to_account_info());
+    }
+
+    let ix = withdraw_withheld_tokens_from_accounts(all.token_2022_program.key, &all.mint.key(), &all.destination.key(), all.authority.key, &[all.authority.key], &sources)?;
+
+    infos.push(all.token_2022_program.to_account_info());
+    infos.push(all.mint.to_account_info());
+    infos.push(all.destination.to_account_info());
+    infos.push(all.authority.to_account_info());
+
+    invoke(&ix, &infos)?;
+
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct HarvestWithheldToken<'info> {
+    #[account(
+        mut,
+        mint::token_program = Token2022::id()
+    )]
+    pub mint: InterfaceAccount<'info, Mint>,
+    pub token_2022_program: Interface<'info, TokenInterface>,
+}
+
+pub(crate) fn handler_for_harvest_withheld_token<'a>(ctx:Context<'_,'_,'_,'a, HarvestWithheldToken<'a>>) -> Result<()> {
+    let all = ctx.accounts;
+
+    let  rem_acc = ctx.remaining_accounts;
+    let mut sources= Vec::new();
+    let mut infos = Vec::new();
+
+    for acc_info in rem_acc {
+        sources.push(acc_info.key);
+        infos.push(acc_info.to_account_info());
+    }
+
+    let ix = harvest_withheld_tokens_to_mint(all.token_2022_program.key, &all.mint.key(), &sources)?;
+
+    infos.push(all.token_2022_program.to_account_info());
+    infos.push(all.mint.to_account_info());
+
+    invoke(&ix, &infos)?;
+
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct WithdrawFromWithheldMint<'info> {
+    #[account(
+        mut,
+        mint::token_program = Token2022::id()
+    )]
+    pub mint: InterfaceAccount<'info, Mint>,
+    #[account(
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = authority,
+        associated_token::token_program = Token2022::id()
+    )]
+    pub destination: InterfaceAccount<'info, TokenAccount>,
+    pub token_2022_program: Interface<'info, TokenInterface>,
+    pub authority: Signer<'info>
+
+}
+
+pub(crate) fn handler_for_withdraw_withheld_mint(ctx:Context<WithdrawFromWithheldMint>) -> Result<()> {
+    let all = ctx.accounts;
+
+    let ix = withdraw_withheld_tokens_from_mint(all.token_2022_program.key, &all.mint.key(), &all.destination.key(), all.authority.key, &[all.authority.key])?;
+
+
+    invoke(&ix, &[
+        all.token_2022_program.to_account_info(),
+        all.mint.to_account_info(),
+        all.destination.to_account_info(),
+        all.authority.to_account_info()
+    ])?;
+
     Ok(())
 }

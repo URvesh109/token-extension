@@ -48,4 +48,20 @@ pub mod token_extension {
     pub fn transfer_to(ctx: Context<TransferToAccount>, amount: u64, fee: u64) -> Result<()> {
         transfer_fee::handler_for_transfer_to_account(ctx, amount, fee)
     }
+
+    pub fn withdraw_withheld_account<'a>(
+        ctx: Context<'_, '_, '_, 'a, WithdrawFromWithheldAccount<'a>>,
+    ) -> Result<()> {
+        transfer_fee::handler_for_withdraw_withheld_account(ctx)
+    }
+
+    pub fn harvest_withheld_token<'a>(
+        ctx: Context<'_, '_, '_, 'a, HarvestWithheldToken<'a>>,
+    ) -> Result<()> {
+        transfer_fee::handler_for_harvest_withheld_token(ctx)
+    }
+
+    pub fn withdraw_withheld_mint(ctx: Context<WithdrawFromWithheldMint>) -> Result<()> {
+        transfer_fee::handler_for_withdraw_withheld_mint(ctx)
+    }
 }

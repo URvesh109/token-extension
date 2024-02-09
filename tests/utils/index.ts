@@ -62,13 +62,13 @@ export async function rejectedWith<T>(
   await expect(promise).to.be.rejectedWith(constructor, expected, message);
 }
 
-export async function findWithheldTokenAccount({
+export async function findWithheldTokenAndRemainingAccount({
   connection,
   mint,
 }: {
   connection: anchor.web3.Connection;
   mint: anchor.web3.PublicKey;
-}): Promise<Array<anchor.web3.PublicKey>> {
+}): Promise<Array<anchor.web3.AccountMeta>> {
   const allAccounts = await connection.getProgramAccounts(
     TOKEN_2022_PROGRAM_ID,
     {
@@ -83,7 +83,7 @@ export async function findWithheldTokenAccount({
       ],
     }
   );
-  const accountsToWithdrawFrom = [];
+  const accountsToWithdrawFrom: anchor.web3.AccountMeta[] = [];
   for (const accountInfo of allAccounts) {
     const account = unpackAccount(
       accountInfo.pubkey,
@@ -95,8 +95,29 @@ export async function findWithheldTokenAccount({
       transferFeeAmount !== null &&
       transferFeeAmount.withheldAmount > BigInt(0)
     ) {
-      accountsToWithdrawFrom.push(accountInfo.pubkey);
+      accountsToWithdrawFrom.push({
+        pubkey: accountInfo.pubkey,
+        isSigner: false,
+        isWritable: true,
+      });
     }
   }
+
   return accountsToWithdrawFrom;
+}
+
+export async function getWithheldAmount(
+  connection: anchor.web3.Connection,
+  publicKey: anchor.web3.PublicKey,
+  extensionKey: string
+): Promise<number> {
+  const data = await connection.getParsedAccountInfo(publicKey, {
+    commitment: "finalized",
+  });
+
+  for (const iterator of data.value.data["parsed"]["info"]["extensions"]) {
+    if (iterator["extension"] == extensionKey) {
+      return Promise.resolve(iterator["state"]["withheldAmount"]);
+    }
+  }
 }

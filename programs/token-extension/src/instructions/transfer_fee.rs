@@ -165,6 +165,8 @@ pub struct WithdrawFromWithheldAccount<'info> {
 
 pub(crate) fn handler_for_withdraw_withheld_account<'a>(ctx:Context<'_,'_,'_,'a, WithdrawFromWithheldAccount<'a>>) -> Result<()> {
     let all = ctx.accounts;
+
+    // TODO: filter account with withheld tokens and limit to remaining acc
     let  rem_acc = ctx.remaining_accounts;
     let mut sources= Vec::new();
     let mut infos = Vec::new();
@@ -199,6 +201,7 @@ pub struct HarvestWithheldToken<'info> {
 pub(crate) fn handler_for_harvest_withheld_token<'a>(ctx:Context<'_,'_,'_,'a, HarvestWithheldToken<'a>>) -> Result<()> {
     let all = ctx.accounts;
 
+    // TODO: filter account with withheld tokens and limit to remaining acc
     let  rem_acc = ctx.remaining_accounts;
     let mut sources= Vec::new();
     let mut infos = Vec::new();

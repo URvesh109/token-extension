@@ -1,18 +1,16 @@
-use crate::error::ErrorCode;
 use anchor_lang::prelude::*;
 use anchor_spl::{
     token_2022::{close_account, CloseAccount},
-    token_interface::Token2022,
+    token_interface::{Mint, Token2022},
 };
 
 #[derive(Accounts)]
 pub struct CloseMintAccount<'info> {
-    /// CHECK: mint owner
     #[account(
         mut,
-        owner = Token2022::id() @  ErrorCode::InvalidAccountOwner,
+        mint::token_program = Token2022::id()
     )]
-    pub mint: UncheckedAccount<'info>,
+    pub mint: InterfaceAccount<'info, Mint>,
     pub token_2022_program: Program<'info, Token2022>,
     pub destination: SystemAccount<'info>,
     pub authority: SystemAccount<'info>,

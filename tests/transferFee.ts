@@ -6,11 +6,12 @@ import {
   ExtensionType,
   getMintLen,
   createAssociatedTokenAccountIdempotent,
-  closeAccount,
 } from "@solana/spl-token";
 import * as path from "path";
 import {
-  findWithheldTokenAccount,
+  assert,
+  findWithheldTokenAndRemainingAccount,
+  getWithheldAmount,
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
@@ -169,20 +170,14 @@ describe("token-extension transfer-fee", () => {
         signers: [admin],
       });
 
-      const result = await findWithheldTokenAccount({
-        connection: provider.connection,
-        mint: mint.publicKey,
-      });
-
-      const remainingAccounts: anchor.web3.AccountMeta[] = [];
-
-      for (let pubkey of result) {
-        remainingAccounts.push({
-          pubkey,
-          isSigner: false,
-          isWritable: true,
-        });
-      }
+      assert.strictEqual(
+        await getWithheldAmount(
+          provider.connection,
+          receiverAssociatedTokenAcc,
+          "transferFeeAmount"
+        ),
+        fee.toNumber()
+      );
 
       const withheldTx = await program.methods
         .withdrawWithheldAccount()
@@ -192,7 +187,12 @@ describe("token-extension transfer-fee", () => {
           token2022Program: TOKEN_2022_PROGRAM_ID,
           authority: admin.publicKey,
         })
-        .remainingAccounts(remainingAccounts)
+        .remainingAccounts(
+          await findWithheldTokenAndRemainingAccount({
+            connection: provider.connection,
+            mint: mint.publicKey,
+          })
+        )
         .transaction();
 
       await sendAndConfirmTransaction({
@@ -200,6 +200,15 @@ describe("token-extension transfer-fee", () => {
         transaction: withheldTx,
         signers: [admin],
       });
+
+      assert.strictEqual(
+        await getWithheldAmount(
+          provider.connection,
+          receiverAssociatedTokenAcc,
+          "transferFeeAmount"
+        ),
+        0
+      );
 
       const secondTransferIx = await program.methods
         .transferTo(transferAmount, fee)
@@ -234,28 +243,18 @@ describe("token-extension transfer-fee", () => {
         signers: [admin],
       });
 
-      const result2 = await findWithheldTokenAccount({
-        connection: provider.connection,
-        mint: mint.publicKey,
-      });
-
-      const remainingAccounts2: anchor.web3.AccountMeta[] = [];
-
-      for (let pubkey of result2) {
-        remainingAccounts2.push({
-          pubkey,
-          isSigner: false,
-          isWritable: true,
-        });
-      }
-
       const harvestTx = await program.methods
         .harvestWithheldToken()
         .accounts({
           mint: mint.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
         })
-        .remainingAccounts(remainingAccounts2)
+        .remainingAccounts(
+          await findWithheldTokenAndRemainingAccount({
+            connection: provider.connection,
+            mint: mint.publicKey,
+          })
+        )
         .transaction();
 
       await sendAndConfirmTransaction({
@@ -263,6 +262,15 @@ describe("token-extension transfer-fee", () => {
         transaction: harvestTx,
         signers: [admin],
       });
+
+      assert.strictEqual(
+        await getWithheldAmount(
+          provider.connection,
+          mint.publicKey,
+          "transferFeeConfig"
+        ),
+        fee.toNumber() * 2
+      );
 
       const withheldMintTx = await program.methods
         .withdrawWithheldMint()
@@ -274,13 +282,20 @@ describe("token-extension transfer-fee", () => {
         })
         .transaction();
 
-      const id = await sendAndConfirmTransaction({
+      await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: withheldMintTx,
         signers: [admin],
       });
 
-      console.log("Mint withheld tx id", id);
+      assert.strictEqual(
+        await getWithheldAmount(
+          provider.connection,
+          mint.publicKey,
+          "transferFeeConfig"
+        ),
+        0
+      );
     })
   );
 });

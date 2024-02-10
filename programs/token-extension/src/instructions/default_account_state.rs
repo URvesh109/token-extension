@@ -27,7 +27,6 @@ pub struct DefaultAccountState<'info> {
     pub mint: Signer<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
-    #[account(mut)]
     pub all_mint_role: Signer<'info>,
     pub token_2022_program: Program<'info, Token2022>,
     pub system_program: Program<'info, System>,

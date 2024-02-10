@@ -10,4 +10,6 @@ pub enum ErrorCode {
     AlreadyInUse,
     #[msg("Five sources are supported as now")]
     InvalidRemainingAccounts,
+    #[msg("Invalid Account State")]
+    InvalidAccountState,
 }

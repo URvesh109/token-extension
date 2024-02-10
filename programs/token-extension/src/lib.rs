@@ -64,4 +64,15 @@ pub mod token_extension {
     pub fn withdraw_withheld_mint(ctx: Context<WithdrawFromWithheldMint>) -> Result<()> {
         transfer_fee::handler_for_withdraw_withheld_mint(ctx)
     }
+
+    pub fn default_account_state(ctx: Context<DefaultAccountState>, data_len: u64) -> Result<()> {
+        default_account_state::handler_for_default_account_state(ctx, data_len)
+    }
+
+    pub fn update_default_account_state(
+        ctx: Context<UpdateDefaultAccountState>,
+        account_state: u8,
+    ) -> Result<()> {
+        default_account_state::handler_for_update_default_account_state(ctx, account_state)
+    }
 }

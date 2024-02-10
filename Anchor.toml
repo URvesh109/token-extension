@@ -17,3 +17,4 @@ wallet = "keypairs/admin.json"
 [scripts]
 extension = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/token-extension.ts"
 transfer = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/transferFee.ts"
+default = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/defaultState.ts"

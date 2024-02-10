@@ -121,3 +121,20 @@ export async function getWithheldAmount(
     }
   }
 }
+
+export async function getTokenExtensionState(
+  connection: anchor.web3.Connection,
+  publicKey: anchor.web3.PublicKey,
+  extensionKey: string,
+  extensionValue: string
+) {
+  const data = await connection.getParsedAccountInfo(publicKey, {
+    commitment: "finalized",
+  });
+
+  for (const iterator of data.value.data["parsed"]["info"]["extensions"]) {
+    if (iterator["extension"] == extensionKey) {
+      return Promise.resolve(iterator["state"][`${extensionValue}`]);
+    }
+  }
+}

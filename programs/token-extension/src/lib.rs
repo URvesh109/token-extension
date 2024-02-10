@@ -75,4 +75,12 @@ pub mod token_extension {
     ) -> Result<()> {
         default_account_state::handler_for_update_default_account_state(ctx, account_state)
     }
+
+    pub fn immutable_owner(
+        ctx: Context<ImmutableOwner>,
+        mint_len: u64,
+        account_len: u64,
+    ) -> Result<()> {
+        immutable_owner::handler(ctx, mint_len, account_len)
+    }
 }

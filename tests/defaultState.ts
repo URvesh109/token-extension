@@ -5,15 +5,12 @@ import {
   TOKEN_2022_PROGRAM_ID,
   ExtensionType,
   getMintLen,
-  createAssociatedTokenAccountIdempotent,
   AccountState,
 } from "@solana/spl-token";
 import * as path from "path";
 import {
   assert,
-  findWithheldTokenAndRemainingAccount,
   getTokenExtensionState,
-  getWithheldAmount,
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,

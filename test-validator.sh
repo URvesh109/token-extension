@@ -2,4 +2,5 @@
 
 set -x
 
-solana-test-validator -r
+anchor localnet --arch sbf
+

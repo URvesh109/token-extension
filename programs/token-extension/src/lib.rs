@@ -83,4 +83,12 @@ pub mod token_extension {
     ) -> Result<()> {
         immutable_owner::handler(ctx, mint_len, account_len)
     }
+
+    pub fn non_transferable_token(
+        ctx: Context<NonTransferableToken>,
+        mint_len: u64,
+        account_len: u64,
+    ) -> Result<()> {
+        non_transferable_tokens::handler(ctx, mint_len, account_len)
+    }
 }

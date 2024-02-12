@@ -113,7 +113,7 @@ pub(crate) fn handler_for_update_default_account_state(
         all.token_2022_program.key,
         &all.mint.key(),
         all.freeze_auth.key,
-        &[all.freeze_auth.key],
+        &[],
         &account_state,
     )?;
 

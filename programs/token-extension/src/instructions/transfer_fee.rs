@@ -170,7 +170,7 @@ pub(crate) fn handler_for_transfer_to_account(
         &all.mint.key(),
         &all.to_acc.key(),
         all.authority.key,
-        &[all.authority.key],
+        &[],
         amount,
         all.mint.decimals,
         fee,
@@ -218,7 +218,7 @@ pub(crate) fn handler_for_withdraw_withheld_account<'a>(
         &all.mint.key(),
         &all.destination.key(),
         all.authority.key,
-        &[all.authority.key],
+        &[],
         &sources,
     )?;
 
@@ -288,7 +288,7 @@ pub(crate) fn handler_for_withdraw_withheld_mint(
         &all.mint.key(),
         &all.destination.key(),
         all.authority.key,
-        &[all.authority.key],
+        &[],
     )?;
 
     invoke(

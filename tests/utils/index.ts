@@ -11,6 +11,10 @@ import Debug from "debug";
 
 export const log = Debug("log:");
 
+export const MEMO_PROGRAM_ID = new anchor.web3.PublicKey(
+  "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"
+);
+
 export function keypairFromFile(path: string): anchor.web3.Keypair {
   return anchor.web3.Keypair.fromSecretKey(
     Uint8Array.from(
@@ -32,9 +36,7 @@ export async function sendAndConfirmTransaction({
     connection,
     transaction,
     signers,
-    {
-      commitment: "finalized",
-    }
+    { commitment: "finalized", skipPreflight: true }
   );
 }
 

@@ -91,4 +91,12 @@ pub mod token_extension {
     ) -> Result<()> {
         non_transferable_tokens::handler(ctx, mint_len, account_len)
     }
+
+    pub fn enable_memo(ctx: Context<EnableMemo>, account_len: u64) -> Result<()> {
+        memo_transfer::handler_to_enable_memo(ctx, account_len)
+    }
+
+    pub fn memo_transfer(ctx: Context<MemoTransfer>, amount: u64, decimals: u8) -> Result<()> {
+        memo_transfer::handler_to_memo_transfer(ctx, amount, decimals)
+    }
 }

@@ -15,6 +15,7 @@ import {
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
+  log,
 } from "./utils";
 
 describe("token-extension transfer-fee", () => {
@@ -39,7 +40,7 @@ describe("token-extension transfer-fee", () => {
   );
 
   const mint = anchor.web3.Keypair.generate();
-  console.log("Mint", mint.publicKey.toBase58());
+  log("Mint", mint.publicKey.toBase58());
 
   it(
     "Set transferFeeConfig",
@@ -78,7 +79,7 @@ describe("token-extension transfer-fee", () => {
         TOKEN_2022_PROGRAM_ID
       );
 
-      console.log("Associated ", associatedTokenAcc.toBase58());
+      log("Associated ", associatedTokenAcc.toBase58());
 
       const mintTx = await program.methods
         .mintTo(
@@ -108,10 +109,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      console.log(
-        "receiverAssociatedTokenAcc ",
-        receiverAssociatedTokenAcc.toBase58()
-      );
+      log("receiverAssociatedTokenAcc ", receiverAssociatedTokenAcc.toBase58());
 
       const receiver2AssociatedTokenAcc =
         await createAssociatedTokenAccountIdempotent(
@@ -123,7 +121,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      console.log(
+      log(
         "receiver2AssociatedTokenAcc ",
         receiver2AssociatedTokenAcc.toBase58()
       );
@@ -138,7 +136,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      console.log(
+      log(
         "receiver3AssociatedTokenAcc ",
         receiver3AssociatedTokenAcc.toBase58()
       );

@@ -7,10 +7,15 @@ import {
   getMintLen,
 } from "@solana/spl-token";
 import * as path from "path";
-import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import {
+  keypairFromFile,
+  runTest,
+  sendAndConfirmTransaction,
+  log,
+} from "./utils";
 import { assert } from "chai";
 
-describe("token-extension", () => {
+describe("token-extension: mintCloseAuthority and closeMintAccount", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -19,7 +24,7 @@ describe("token-extension", () => {
 
   const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
   const mint = anchor.web3.Keypair.generate();
-  console.log("Mint", mint.publicKey.toBase58());
+  log("Mint", mint.publicKey.toBase58());
 
   it(
     "Set mintCloseAuthority and closeMintAccount",

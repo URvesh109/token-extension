@@ -8,7 +8,12 @@ import {
   getAccountLen,
 } from "@solana/spl-token";
 import * as path from "path";
-import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import {
+  keypairFromFile,
+  runTest,
+  sendAndConfirmTransaction,
+  log,
+} from "./utils";
 
 describe("tokenExtension: NonTransferableToken", () => {
   // Configure the client to use the local cluster.
@@ -20,10 +25,10 @@ describe("tokenExtension: NonTransferableToken", () => {
   const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
 
   const mint = anchor.web3.Keypair.generate();
-  console.log("Mint", mint.publicKey.toBase58());
+  log("Mint", mint.publicKey.toBase58());
 
   const account = anchor.web3.Keypair.generate();
-  console.log("Account", account.publicKey.toBase58());
+  log("Account", account.publicKey.toBase58());
 
   it(
     "create NonTransferable Token",

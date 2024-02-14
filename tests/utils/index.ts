@@ -7,6 +7,9 @@ import {
   getTransferFeeAmount,
   unpackAccount,
 } from "@solana/spl-token";
+import Debug from "debug";
+
+export const log = Debug("log:");
 
 export function keypairFromFile(path: string): anchor.web3.Keypair {
   return anchor.web3.Keypair.fromSecretKey(

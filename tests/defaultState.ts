@@ -14,6 +14,7 @@ import {
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
+  log,
 } from "./utils";
 
 describe("tokenExtension: DefaultAccountState", () => {
@@ -26,7 +27,7 @@ describe("tokenExtension: DefaultAccountState", () => {
   const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
 
   const mint = anchor.web3.Keypair.generate();
-  console.log("Mint", mint.publicKey.toBase58());
+  log("Mint", mint.publicKey.toBase58());
 
   it(
     "frozen and initialized defaultState",

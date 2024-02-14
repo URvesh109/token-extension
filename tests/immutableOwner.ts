@@ -9,11 +9,10 @@ import {
 } from "@solana/spl-token";
 import * as path from "path";
 import {
-  assert,
-  getTokenExtensionState,
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
+  log,
 } from "./utils";
 
 describe("tokenExtension: ImmutableOwner", () => {
@@ -26,9 +25,9 @@ describe("tokenExtension: ImmutableOwner", () => {
   const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
 
   const mint = anchor.web3.Keypair.generate();
-  console.log("Mint", mint.publicKey.toBase58());
+  log("Mint", mint.publicKey.toBase58());
   const account = anchor.web3.Keypair.generate();
-  console.log("Account", account.publicKey.toBase58());
+  log("Account", account.publicKey.toBase58());
 
   it(
     "set tokenAccount owner as immutable",

@@ -99,4 +99,8 @@ pub mod token_extension {
     pub fn memo_transfer(ctx: Context<MemoTransfer>, amount: u64, decimals: u8) -> Result<()> {
         memo_transfer::handler_to_memo_transfer(ctx, amount, decimals)
     }
+
+    pub fn realloc(ctx: Context<Realloc>) -> Result<()> {
+        realloc::handler_to_realloc(ctx)
+    }
 }

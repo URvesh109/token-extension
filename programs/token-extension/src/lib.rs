@@ -103,4 +103,16 @@ pub mod token_extension {
     pub fn realloc(ctx: Context<Realloc>) -> Result<()> {
         realloc::handler_to_realloc(ctx)
     }
+
+    pub fn interest_bearing_token(
+        ctx: Context<InterestBearingToken>,
+        mint_len: u64,
+        rate: i16,
+    ) -> Result<()> {
+        interest_bearing_token::handler_to_interest_bearing_token(ctx, mint_len, rate)
+    }
+
+    pub fn amount_to_ui_amount(ctx: Context<AmountToUI>, amount: u64) -> Result<String> {
+        interest_bearing_token::handle_amount_to_ui(ctx, amount)
+    }
 }

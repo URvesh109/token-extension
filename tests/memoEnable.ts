@@ -4,7 +4,6 @@ import { TokenExtension } from "../target/types/token_extension";
 import {
   TOKEN_2022_PROGRAM_ID,
   ExtensionType,
-  getMintLen,
   createAssociatedTokenAccountIdempotent,
   mintTo,
   createMint,

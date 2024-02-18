@@ -5,7 +5,6 @@ import {
   TOKEN_2022_PROGRAM_ID,
   createAssociatedTokenAccountIdempotent,
   createMint,
-  createAccount,
 } from "@solana/spl-token";
 import * as path from "path";
 import { keypairFromFile, log, sendAndConfirmTransaction } from "./utils";

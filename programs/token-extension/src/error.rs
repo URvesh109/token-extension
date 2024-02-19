@@ -12,4 +12,6 @@ pub enum ErrorCode {
     InvalidRemainingAccounts,
     #[msg("Invalid Account State")]
     InvalidAccountState,
+    #[msg("ATA is invalid")]
+    InvalidATA,
 }

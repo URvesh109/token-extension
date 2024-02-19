@@ -115,4 +115,16 @@ pub mod token_extension {
     pub fn amount_to_ui_amount(ctx: Context<AmountToUI>, amount: u64) -> Result<String> {
         interest_bearing_token::handle_amount_to_ui(ctx, amount)
     }
+
+    pub fn permanent_delegate(ctx: Context<PermanentDelegate>, mint_len: u64) -> Result<()> {
+        permanent_delegate::handle_permanent_delegate(ctx, mint_len)
+    }
+
+    pub fn create_ata(ctx: Context<CreateATA>) -> Result<()> {
+        permanent_delegate::handle_create_ata(ctx)
+    }
+
+    pub fn burn_cpi(ctx: Context<BurnCpi>, amount: u64) -> Result<()> {
+        permanent_delegate::handle_for_burn(ctx, amount)
+    }
 }

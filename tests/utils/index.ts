@@ -143,3 +143,20 @@ export async function getTokenExtensionState(
     }
   }
 }
+
+export async function airdrop(
+  provider: anchor.AnchorProvider,
+  ...addresses: anchor.web3.PublicKey[]
+) {
+  await Promise.all(
+    addresses.map(async (address) => {
+      const signature = await provider.connection.requestAirdrop(address, 10e9);
+      const latestBlockHash = await provider.connection.getLatestBlockhash();
+      await provider.connection.confirmTransaction({
+        blockhash: latestBlockHash.blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature,
+      });
+    })
+  );
+}

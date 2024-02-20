@@ -1,4 +1,5 @@
 pub mod close_mint_account;
+pub mod cpi_guard;
 pub mod default_account_state;
 pub mod immutable_owner;
 pub mod interest_bearing_token;
@@ -10,6 +11,7 @@ pub mod realloc;
 pub mod transfer_fee;
 
 pub use close_mint_account::*;
+pub use cpi_guard::*;
 pub use default_account_state::*;
 pub use immutable_owner::*;
 pub use interest_bearing_token::*;

@@ -127,4 +127,11 @@ pub mod token_extension {
     pub fn burn_cpi(ctx: Context<BurnCpi>, amount: u64) -> Result<()> {
         permanent_delegate::handle_for_burn(ctx, amount)
     }
+
+    pub fn initialize_with_cpi_guard(
+        ctx: Context<CpiGuardAccount>,
+        account_len: u64,
+    ) -> Result<()> {
+        cpi_guard::handler_to_cpi_guard(ctx, account_len)
+    }
 }

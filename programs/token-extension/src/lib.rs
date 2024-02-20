@@ -134,4 +134,8 @@ pub mod token_extension {
     ) -> Result<()> {
         cpi_guard::handler_to_cpi_guard(ctx, account_len)
     }
+
+    pub fn transfer_token(ctx: Context<TransferToken>, amount: u64, decimals: u8) -> Result<()> {
+        cpi_guard::handler_for_transfer_token(ctx, amount, decimals)
+    }
 }

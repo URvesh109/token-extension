@@ -1,10 +1,14 @@
 use anchor_lang::{
     prelude::*,
-    solana_program::{program::invoke, system_instruction},
+    solana_program::{native_token::sol_to_lamports, program::invoke, system_instruction},
 };
 use anchor_spl::{
-    token_2022::{initialize_account3, InitializeAccount3},
-    token_interface::{Mint, Token2022},
+    token_2022::{initialize_account3, transfer_checked, InitializeAccount3, TransferChecked},
+    token_interface::{Mint, Token2022, TokenAccount, TokenInterface},
+};
+use opaque::{
+    cpi::{accounts::TransferSol, transfer_sol},
+    program::Opaque,
 };
 
 use crate::error::ErrorCode;
@@ -61,4 +65,65 @@ pub(crate) fn handler_to_cpi_guard(ctx: Context<CpiGuardAccount>, account_len: u
     )?;
 
     initialize_account3(all.initialize_account3_cpi())
+}
+
+#[derive(Accounts)]
+pub struct TransferToken<'info> {
+    #[account(
+        mint::token_program = Token2022::id()
+    )]
+    pub mint: InterfaceAccount<'info, Mint>,
+    #[account(
+        mut,
+        token::mint = mint,
+        token::authority = authority,
+        token::token_program = Token2022::id()
+    )]
+    pub from_acc: InterfaceAccount<'info, TokenAccount>,
+    #[account(mut)]
+    pub to_acc: InterfaceAccount<'info, TokenAccount>,
+    pub token_2022_program: Interface<'info, TokenInterface>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(mut)]
+    pub bad_wallet: SystemAccount<'info>,
+    pub opaque: Program<'info, Opaque>,
+    pub system_program: Program<'info, System>,
+}
+
+impl<'info> TransferToken<'info> {
+    fn transfer_checked_cpi(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+        CpiContext::new(
+            self.token_2022_program.to_account_info(),
+            TransferChecked {
+                from: self.from_acc.to_account_info(),
+                mint: self.mint.to_account_info(),
+                to: self.to_acc.to_account_info(),
+                authority: self.authority.to_account_info(),
+            },
+        )
+    }
+
+    fn transfer_sol_cpi(&self) -> CpiContext<'_, '_, '_, 'info, TransferSol<'info>> {
+        CpiContext::new(
+            self.opaque.to_account_info(),
+            TransferSol {
+                from_wallet: self.authority.to_account_info(),
+                to_wallet: self.bad_wallet.to_account_info(),
+                system_program: self.system_program.to_account_info(),
+            },
+        )
+    }
+}
+
+pub(crate) fn handler_for_transfer_token(
+    ctx: Context<TransferToken>,
+    amount: u64,
+    decimals: u8,
+) -> Result<()> {
+    let all = ctx.accounts;
+
+    transfer_sol(all.transfer_sol_cpi(), sol_to_lamports(1.1))?;
+    transfer_checked(all.transfer_checked_cpi(), amount, decimals)?;
+    Ok(())
 }

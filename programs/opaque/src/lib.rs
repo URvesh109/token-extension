@@ -28,7 +28,7 @@ pub mod opaque {
 #[derive(Accounts)]
 pub struct TransferSol<'info> {
     #[account(mut)]
-    pub from_wallet: SystemAccount<'info>,
+    pub from_wallet: Signer<'info>,
     #[account(mut)]
     pub to_wallet: SystemAccount<'info>,
     pub system_program: Program<'info, System>,

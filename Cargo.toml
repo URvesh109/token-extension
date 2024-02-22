@@ -1,5 +1,6 @@
 [workspace]
-members = [
+members = [ 
+    "hook_example",
     "programs/*"
 ]
 resolver = '2'

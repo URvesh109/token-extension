@@ -82,7 +82,7 @@ pub mod transfer_hook {
                 // invoke custom transfer hook instruction on our program
                 __private::__global::transfer_hook(program_id, accounts, &amount_bytes)
             }
-            _ => return Err(ProgramError::InvalidInstructionData.into()),
+            _ => Err(ProgramError::InvalidInstructionData.into()),
         }
     }
 }

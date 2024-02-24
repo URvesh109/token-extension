@@ -98,7 +98,11 @@ pub struct MemoTransfer<'info> {
         associated_token::token_program = Token2022::id()
     )]
     pub from_acc: InterfaceAccount<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(
+        mut,
+        token::mint = mint,
+        token::token_program = Token2022::id()
+    )]
     pub to_acc: InterfaceAccount<'info, TokenAccount>,
     pub token_2022_program: Interface<'info, TokenInterface>,
     pub authority: Signer<'info>,

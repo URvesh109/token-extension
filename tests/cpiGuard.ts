@@ -64,8 +64,9 @@ describe("token-extension: cpi guard enable", () => {
 
     const transaction = new anchor.web3.Transaction();
 
+    // with CPI guard
     const enableCpiGuardIx = await program.methods
-      .initializeWithCpiGuard(accountLen)
+      .initializeTokenAccountWith(accountLen)
       .accounts({
         mint: mint.publicKey,
         tokenAcc: tokenAccount.publicKey,

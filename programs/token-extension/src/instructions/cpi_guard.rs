@@ -4,7 +4,7 @@ use anchor_lang::{
 };
 use anchor_spl::{
     token_2022::{initialize_account3, transfer_checked, InitializeAccount3, TransferChecked},
-    token_interface::{Mint, Token2022, TokenAccount, TokenInterface},
+    token_interface::{Mint, Token2022, TokenAccount},
 };
 use opaque::{
     cpi::{accounts::TransferSol, transfer_sol},
@@ -46,7 +46,10 @@ impl<'info> CpiGuardAccount<'info> {
     }
 }
 
-pub(crate) fn handler_to_cpi_guard(ctx: Context<CpiGuardAccount>, account_len: u64) -> Result<()> {
+pub(crate) fn handler_to_initialize_token_account(
+    ctx: Context<CpiGuardAccount>,
+    account_len: u64,
+) -> Result<()> {
     let all = ctx.accounts;
 
     invoke(
@@ -80,9 +83,13 @@ pub struct TransferToken<'info> {
         token::token_program = Token2022::id()
     )]
     pub from_acc: InterfaceAccount<'info, TokenAccount>,
-    #[account(mut)]
+    #[account(
+        mut,
+        token::mint = mint,
+        token::token_program = Token2022::id()
+    )]
     pub to_acc: InterfaceAccount<'info, TokenAccount>,
-    pub token_2022_program: Interface<'info, TokenInterface>,
+    pub token_2022_program: Program<'info, Token2022>,
     #[account(mut)]
     pub authority: Signer<'info>,
     #[account(mut)]

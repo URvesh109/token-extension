@@ -128,14 +128,30 @@ pub mod token_extension {
         permanent_delegate::handle_for_burn(ctx, amount)
     }
 
-    pub fn initialize_with_cpi_guard(
+    pub fn initialize_token_account_with(
         ctx: Context<CpiGuardAccount>,
         account_len: u64,
     ) -> Result<()> {
-        cpi_guard::handler_to_cpi_guard(ctx, account_len)
+        cpi_guard::handler_to_initialize_token_account(ctx, account_len)
     }
 
     pub fn transfer_token(ctx: Context<TransferToken>, amount: u64, decimals: u8) -> Result<()> {
         cpi_guard::handler_for_transfer_token(ctx, amount, decimals)
+    }
+
+    pub fn initialize_hook_mint(
+        ctx: Context<InitializeHookMint>,
+        mint_len: u64,
+        transfer_hook_program_id: Option<Pubkey>,
+    ) -> Result<()> {
+        transfer_hook::handler_for_initialize_hook_mint(ctx, mint_len, transfer_hook_program_id)
+    }
+
+    pub fn transfer_hook_token<'a>(
+        ctx: Context<'_, '_, '_, 'a, TransferHookToken<'a>>,
+        amount: u64,
+        decimals: u8,
+    ) -> Result<()> {
+        transfer_hook::handler_for_transfer_token(ctx, amount, decimals)
     }
 }

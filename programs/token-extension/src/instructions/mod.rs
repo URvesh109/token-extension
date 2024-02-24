@@ -9,6 +9,7 @@ pub mod non_transferable_tokens;
 pub mod permanent_delegate;
 pub mod realloc;
 pub mod transfer_fee;
+pub mod transfer_hook;
 
 pub use close_mint_account::*;
 pub use cpi_guard::*;
@@ -21,3 +22,4 @@ pub use non_transferable_tokens::*;
 pub use permanent_delegate::*;
 pub use realloc::*;
 pub use transfer_fee::*;
+pub use transfer_hook::*;

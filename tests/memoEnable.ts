@@ -12,10 +12,12 @@ import {
 import * as path from "path";
 import {
   keypairFromFile,
-  log,
   sendAndConfirmTransaction,
   MEMO_PROGRAM_ID,
 } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: memoEnable");
 
 describe("token-extension: memo enable transfer", () => {
   // Configure the client to use the local cluster.
@@ -80,42 +82,38 @@ describe("token-extension: memo enable transfer", () => {
       getAccountLen([ExtensionType.MemoTransfer])
     );
 
-    const enableMemoTx = await program.methods
-      .enableMemo(accountLen)
-      .accounts({
-        mint: mint.publicKey,
-        receiverAcc: receiverAcc.publicKey,
-        payer: admin.publicKey,
-        receiver: receiver.publicKey,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-      })
-      .transaction();
-
     const memoId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: enableMemoTx,
+      transaction: await program.methods
+        .enableMemo(accountLen)
+        .accounts({
+          mint: mint.publicKey,
+          receiverAcc: receiverAcc.publicKey,
+          payer: admin.publicKey,
+          receiver: receiver.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        })
+        .transaction(),
       signers: [admin, receiver, receiverAcc],
     });
 
     log("Memo enable tx id ", memoId);
 
-    const memoTransferTx = await program.methods
-      .memoTransfer(new anchor.BN(5 * 10 ** decimals), decimals)
-      .accounts({
-        mint: mint.publicKey,
-        fromAcc: associatedTokenAcc,
-        toAcc: receiverAcc.publicKey,
-        authority: admin.publicKey,
-        memoProgram: MEMO_PROGRAM_ID,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-      })
-      .transaction();
-
     const mTid = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: memoTransferTx,
+      transaction: await program.methods
+        .memoTransfer(new anchor.BN(5 * 10 ** decimals), decimals)
+        .accounts({
+          mint: mint.publicKey,
+          fromAcc: associatedTokenAcc,
+          toAcc: receiverAcc.publicKey,
+          authority: admin.publicKey,
+          memoProgram: MEMO_PROGRAM_ID,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+        })
+        .transaction(),
       signers: [admin],
     });
 

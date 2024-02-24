@@ -155,23 +155,21 @@ describe("token-extension: cpi guard enable", () => {
 
     log("Receiver sol balance before cpi ", receiverBalBeforeCpi);
 
-    const transferTokenTx = await program.methods
-      .transferToken(new anchor.BN(2 * 10 ** decimals), decimals)
-      .accounts({
-        mint: mint.publicKey,
-        fromAcc: associatedTokenAcc,
-        toAcc: receiverATA,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        authority: admin.publicKey,
-        opaque: opaqueProgram.programId,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        badWallet: receiver.publicKey,
-      })
-      .transaction();
-
     const transferTokenTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: transferTokenTx,
+      transaction: await program.methods
+        .transferToken(new anchor.BN(2 * 10 ** decimals), decimals)
+        .accounts({
+          mint: mint.publicKey,
+          fromAcc: associatedTokenAcc,
+          toAcc: receiverATA,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          authority: admin.publicKey,
+          opaque: opaqueProgram.programId,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          badWallet: receiver.publicKey,
+        })
+        .transaction(),
       signers: [admin],
     });
 
@@ -186,24 +184,22 @@ describe("token-extension: cpi guard enable", () => {
 
     log("Failed: Transfer token with CPI GUARD");
 
-    const transferTokenCpiGuardTx = await program.methods
-      .transferToken(new anchor.BN(2 * 10 ** decimals), decimals)
-      .accounts({
-        mint: mint.publicKey,
-        fromAcc: tokenAccount.publicKey,
-        toAcc: receiverATA,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        authority: admin.publicKey,
-        opaque: opaqueProgram.programId,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        badWallet: receiver.publicKey,
-      })
-      .transaction();
-
     await rejectedWith(
       sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: transferTokenCpiGuardTx,
+        transaction: await program.methods
+          .transferToken(new anchor.BN(2 * 10 ** decimals), decimals)
+          .accounts({
+            mint: mint.publicKey,
+            fromAcc: tokenAccount.publicKey,
+            toAcc: receiverATA,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            authority: admin.publicKey,
+            opaque: opaqueProgram.programId,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            badWallet: receiver.publicKey,
+          })
+          .transaction(),
         signers: [admin],
       }),
       Error

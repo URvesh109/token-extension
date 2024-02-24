@@ -10,12 +10,10 @@ import {
   mintTo,
 } from "@solana/spl-token";
 import * as path from "path";
-import {
-  keypairFromFile,
-  runTest,
-  sendAndConfirmTransaction,
-  log,
-} from "./utils";
+import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: IBT");
 
 describe("tokenExtension: Interest Bearing Token", () => {
   // Configure the client to use the local cluster.
@@ -32,24 +30,22 @@ describe("tokenExtension: Interest Bearing Token", () => {
   it(
     "initialized interest bearing token",
     runTest(async () => {
-      const interestTx = await program.methods
-        .interestBearingToken(
-          new anchor.BN(getMintLen([ExtensionType.InterestBearingConfig])),
-          5
-        )
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          payer: admin.publicKey,
-          allMintRole: admin.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-
       const id = await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: interestTx,
+        transaction: await program.methods
+          .interestBearingToken(
+            new anchor.BN(getMintLen([ExtensionType.InterestBearingConfig])),
+            5
+          )
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            payer: admin.publicKey,
+            allMintRole: admin.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .transaction(),
         signers: [admin, mint],
       });
       log("tx ", id);

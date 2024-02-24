@@ -7,7 +7,10 @@ import {
   createMint,
 } from "@solana/spl-token";
 import * as path from "path";
-import { keypairFromFile, log, sendAndConfirmTransaction } from "./utils";
+import { keypairFromFile, sendAndConfirmTransaction } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: realloc");
 
 describe("token-extension: realloc usage", () => {
   // Configure the client to use the local cluster.
@@ -47,20 +50,18 @@ describe("token-extension: realloc usage", () => {
 
     log("Admin ATA created ", associatedTokenAcc.toBase58());
 
-    const reallocTx = await program.methods
-      .realloc()
-      .accounts({
-        tokenAccount: associatedTokenAcc,
-        payer: admin.publicKey,
-        allMintRole: admin.publicKey,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .transaction();
-
     const rTid = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: reallocTx,
+      transaction: await program.methods
+        .realloc()
+        .accounts({
+          tokenAccount: associatedTokenAcc,
+          payer: admin.publicKey,
+          allMintRole: admin.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .transaction(),
       signers: [admin],
     });
 

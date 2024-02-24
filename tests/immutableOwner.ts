@@ -8,14 +8,12 @@ import {
   getAccountLen,
 } from "@solana/spl-token";
 import * as path from "path";
-import {
-  keypairFromFile,
-  runTest,
-  sendAndConfirmTransaction,
-  log,
-} from "./utils";
+import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import Debug from "debug";
 
-describe("tokenExtension: ImmutableOwner", () => {
+const log = Debug("log: immutableOwner");
+
+describe("tokenExtension: immutableOwner", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -26,31 +24,30 @@ describe("tokenExtension: ImmutableOwner", () => {
 
   const mint = anchor.web3.Keypair.generate();
   log("Mint", mint.publicKey.toBase58());
+
   const account = anchor.web3.Keypair.generate();
   log("Account", account.publicKey.toBase58());
 
   it(
     "set tokenAccount owner as immutable",
     runTest(async () => {
-      const immutableTx = await program.methods
-        .immutableOwner(
-          new anchor.BN(getMintLen([])),
-          new anchor.BN(getAccountLen([ExtensionType.ImmutableOwner]))
-        )
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          account: account.publicKey,
-          payer: admin.publicKey,
-          allMintRole: admin.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: immutableTx,
+        transaction: await program.methods
+          .immutableOwner(
+            new anchor.BN(getMintLen([])),
+            new anchor.BN(getAccountLen([ExtensionType.ImmutableOwner]))
+          )
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            account: account.publicKey,
+            payer: admin.publicKey,
+            allMintRole: admin.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .transaction(),
         signers: [admin, mint, account],
       });
     })

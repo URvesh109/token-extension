@@ -7,13 +7,11 @@ import {
   getMintLen,
 } from "@solana/spl-token";
 import * as path from "path";
-import {
-  keypairFromFile,
-  runTest,
-  sendAndConfirmTransaction,
-  log,
-} from "./utils";
+import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
 import { assert } from "chai";
+import Debug from "debug";
+
+const log = Debug("log: mintCloseAuth");
 
 describe("token-extension: mintCloseAuthority and closeMintAccount", () => {
   // Configure the client to use the local cluster.
@@ -30,23 +28,21 @@ describe("token-extension: mintCloseAuthority and closeMintAccount", () => {
     "Set mintCloseAuthority and closeMintAccount",
     runTest(async () => {
       // Add your test here.
-      const tx = await program.methods
-        .mintCloseAuthority(
-          new anchor.BN(getMintLen([ExtensionType.MintCloseAuthority]))
-        )
-        .accounts({
-          mint: mint.publicKey,
-          payer: admin.publicKey,
-          allMintRole: admin.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: tx,
+        transaction: await program.methods
+          .mintCloseAuthority(
+            new anchor.BN(getMintLen([ExtensionType.MintCloseAuthority]))
+          )
+          .accounts({
+            mint: mint.publicKey,
+            payer: admin.publicKey,
+            allMintRole: admin.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .transaction(),
         signers: [admin, mint],
       });
 
@@ -63,19 +59,17 @@ describe("token-extension: mintCloseAuthority and closeMintAccount", () => {
         }
       }
 
-      const closeAccTx = await program.methods
-        .closeMintAccount()
-        .accounts({
-          mint: mint.publicKey,
-          destination: admin.publicKey,
-          authority: admin.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: closeAccTx,
+        transaction: await program.methods
+          .closeMintAccount()
+          .accounts({
+            mint: mint.publicKey,
+            destination: admin.publicKey,
+            authority: admin.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+          })
+          .transaction(),
         signers: [admin],
       });
 

@@ -15,8 +15,10 @@ import {
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
-  log,
 } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: transferFee");
 
 describe("token-extension transfer-fee", () => {
   // Configure the client to use the local cluster.
@@ -46,27 +48,26 @@ describe("token-extension transfer-fee", () => {
     "Set transferFeeConfig",
     runTest(async () => {
       const feeBasisPoint = 50;
-      const tx = await program.methods
-        .transferFeeConfig(
-          new anchor.BN(getMintLen([ExtensionType.TransferFeeConfig])),
-          admin.publicKey,
-          admin.publicKey,
-          feeBasisPoint,
-          new anchor.BN(100).mul(new anchor.BN(10).pow(new anchor.BN(2)))
-        )
-        .accounts({
-          mint: mint.publicKey,
-          payer: admin.publicKey,
-          allMintRole: admin.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
 
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: tx,
+        transaction: await program.methods
+          .transferFeeConfig(
+            new anchor.BN(getMintLen([ExtensionType.TransferFeeConfig])),
+            admin.publicKey,
+            admin.publicKey,
+            feeBasisPoint,
+            new anchor.BN(100).mul(new anchor.BN(10).pow(new anchor.BN(2)))
+          )
+          .accounts({
+            mint: mint.publicKey,
+            payer: admin.publicKey,
+            allMintRole: admin.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .transaction(),
         signers: [admin, mint],
       });
 
@@ -81,21 +82,19 @@ describe("token-extension transfer-fee", () => {
 
       log("Associated ", associatedTokenAcc.toBase58());
 
-      const mintTx = await program.methods
-        .mintTo(
-          new anchor.BN(2000).mul(new anchor.BN(10).pow(new anchor.BN(2)))
-        )
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          associatedToken: associatedTokenAcc,
-          authority: admin.publicKey,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: mintTx,
+        transaction: await program.methods
+          .mintTo(
+            new anchor.BN(2000).mul(new anchor.BN(10).pow(new anchor.BN(2)))
+          )
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            associatedToken: associatedTokenAcc,
+            authority: admin.publicKey,
+          })
+          .transaction(),
         signers: [admin],
       });
 
@@ -147,24 +146,18 @@ describe("token-extension transfer-fee", () => {
 
       const fee = transferAmount.muln(feeBasisPoint / 10_000);
 
-      const firstTransferIx = await program.methods
-        .transferTo(transferAmount, fee)
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          fromAcc: associatedTokenAcc,
-          toAcc: receiverAssociatedTokenAcc,
-          authority: admin.publicKey,
-        })
-        .instruction();
-
-      const transaction = new anchor.web3.Transaction();
-
-      transaction.add(firstTransferIx);
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: transaction,
+        transaction: await program.methods
+          .transferTo(transferAmount, fee)
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            fromAcc: associatedTokenAcc,
+            toAcc: receiverAssociatedTokenAcc,
+            authority: admin.publicKey,
+          })
+          .transaction(),
         signers: [admin],
       });
 
@@ -177,25 +170,39 @@ describe("token-extension transfer-fee", () => {
         fee.toNumber()
       );
 
-      const withheldTx = await program.methods
-        .withdrawWithheldAccount()
-        .accounts({
-          mint: mint.publicKey,
-          destination: associatedTokenAcc,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          authority: admin.publicKey,
-        })
-        .remainingAccounts(
-          await findWithheldTokenAndRemainingAccount({
-            connection: provider.connection,
-            mint: mint.publicKey,
-          })
-        )
-        .transaction();
+      // const withheldTx = await program.methods
+      //   .withdrawWithheldAccount()
+      //   .accounts({
+      //     mint: mint.publicKey,
+      //     destination: associatedTokenAcc,
+      //     token2022Program: TOKEN_2022_PROGRAM_ID,
+      //     authority: admin.publicKey,
+      //   })
+      //   .remainingAccounts(
+      //     await findWithheldTokenAndRemainingAccount({
+      //       connection: provider.connection,
+      //       mint: mint.publicKey,
+      //     })
+      //   )
+      //   .transaction();
 
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: withheldTx,
+        transaction: await program.methods
+          .withdrawWithheldAccount()
+          .accounts({
+            mint: mint.publicKey,
+            destination: associatedTokenAcc,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            authority: admin.publicKey,
+          })
+          .remainingAccounts(
+            await findWithheldTokenAndRemainingAccount({
+              connection: provider.connection,
+              mint: mint.publicKey,
+            })
+          )
+          .transaction(),
         signers: [admin],
       });
 
@@ -208,56 +215,54 @@ describe("token-extension transfer-fee", () => {
         0
       );
 
-      const secondTransferIx = await program.methods
-        .transferTo(transferAmount, fee)
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          fromAcc: associatedTokenAcc,
-          toAcc: receiver2AssociatedTokenAcc,
-          authority: admin.publicKey,
-        })
-        .instruction();
+      const transaction = new anchor.web3.Transaction();
 
-      const thirdTransferIx = await program.methods
-        .transferTo(transferAmount, fee)
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          fromAcc: associatedTokenAcc,
-          toAcc: receiver3AssociatedTokenAcc,
-          authority: admin.publicKey,
-        })
-        .instruction();
-
-      const transaction2 = new anchor.web3.Transaction();
-
-      transaction2.add(secondTransferIx);
-      transaction2.add(thirdTransferIx);
+      transaction.add(
+        await program.methods
+          .transferTo(transferAmount, fee)
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            fromAcc: associatedTokenAcc,
+            toAcc: receiver2AssociatedTokenAcc,
+            authority: admin.publicKey,
+          })
+          .instruction()
+      );
+      transaction.add(
+        await program.methods
+          .transferTo(transferAmount, fee)
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            fromAcc: associatedTokenAcc,
+            toAcc: receiver3AssociatedTokenAcc,
+            authority: admin.publicKey,
+          })
+          .instruction()
+      );
 
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: transaction2,
+        transaction: transaction,
         signers: [admin],
       });
 
-      const harvestTx = await program.methods
-        .harvestWithheldToken()
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-        })
-        .remainingAccounts(
-          await findWithheldTokenAndRemainingAccount({
-            connection: provider.connection,
-            mint: mint.publicKey,
-          })
-        )
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: harvestTx,
+        transaction: await program.methods
+          .harvestWithheldToken()
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+          })
+          .remainingAccounts(
+            await findWithheldTokenAndRemainingAccount({
+              connection: provider.connection,
+              mint: mint.publicKey,
+            })
+          )
+          .transaction(),
         signers: [admin],
       });
 
@@ -270,19 +275,17 @@ describe("token-extension transfer-fee", () => {
         fee.toNumber() * 2
       );
 
-      const withheldMintTx = await program.methods
-        .withdrawWithheldMint()
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          authority: admin.publicKey,
-          destination: associatedTokenAcc,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: withheldMintTx,
+        transaction: await program.methods
+          .withdrawWithheldMint()
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            authority: admin.publicKey,
+            destination: associatedTokenAcc,
+          })
+          .transaction(),
         signers: [admin],
       });
 

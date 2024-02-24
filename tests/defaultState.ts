@@ -14,8 +14,10 @@ import {
   keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
-  log,
 } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: defaultAccState");
 
 describe("tokenExtension: DefaultAccountState", () => {
   // Configure the client to use the local cluster.
@@ -32,23 +34,21 @@ describe("tokenExtension: DefaultAccountState", () => {
   it(
     "frozen and initialized defaultState",
     runTest(async () => {
-      const defaultAccStateTx = await program.methods
-        .defaultAccountState(
-          new anchor.BN(getMintLen([ExtensionType.DefaultAccountState]))
-        )
-        .accounts({
-          mint: mint.publicKey,
-          payer: admin.publicKey,
-          allMintRole: admin.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: defaultAccStateTx,
+        transaction: await program.methods
+          .defaultAccountState(
+            new anchor.BN(getMintLen([ExtensionType.DefaultAccountState]))
+          )
+          .accounts({
+            mint: mint.publicKey,
+            payer: admin.publicKey,
+            allMintRole: admin.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .transaction(),
         signers: [admin, mint],
       });
 
@@ -61,18 +61,16 @@ describe("tokenExtension: DefaultAccountState", () => {
 
       assert.equal("frozen", result);
 
-      const updateAccStateTx = await program.methods
-        .updateDefaultAccountState(AccountState.Initialized)
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          freezeAuth: admin.publicKey,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: updateAccStateTx,
+        transaction: await program.methods
+          .updateDefaultAccountState(AccountState.Initialized)
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            freezeAuth: admin.publicKey,
+          })
+          .transaction(),
         signers: [admin],
       });
 

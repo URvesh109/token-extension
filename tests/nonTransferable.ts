@@ -8,12 +8,10 @@ import {
   getAccountLen,
 } from "@solana/spl-token";
 import * as path from "path";
-import {
-  keypairFromFile,
-  runTest,
-  sendAndConfirmTransaction,
-  log,
-} from "./utils";
+import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: nonTransferable");
 
 describe("tokenExtension: NonTransferableToken", () => {
   // Configure the client to use the local cluster.
@@ -33,30 +31,28 @@ describe("tokenExtension: NonTransferableToken", () => {
   it(
     "create NonTransferable Token",
     runTest(async () => {
-      const nonTransferableTx = await program.methods
-        .nonTransferableToken(
-          new anchor.BN(getMintLen([ExtensionType.NonTransferable])),
-          new anchor.BN(
-            getAccountLen([
-              ExtensionType.NonTransferableAccount,
-              ExtensionType.ImmutableOwner,
-            ])
-          )
-        )
-        .accounts({
-          mint: mint.publicKey,
-          token2022Program: TOKEN_2022_PROGRAM_ID,
-          account: account.publicKey,
-          payer: admin.publicKey,
-          allMintRole: admin.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
-          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        })
-        .transaction();
-
       await sendAndConfirmTransaction({
         connection: provider.connection,
-        transaction: nonTransferableTx,
+        transaction: await program.methods
+          .nonTransferableToken(
+            new anchor.BN(getMintLen([ExtensionType.NonTransferable])),
+            new anchor.BN(
+              getAccountLen([
+                ExtensionType.NonTransferableAccount,
+                ExtensionType.ImmutableOwner,
+              ])
+            )
+          )
+          .accounts({
+            mint: mint.publicKey,
+            token2022Program: TOKEN_2022_PROGRAM_ID,
+            account: account.publicKey,
+            payer: admin.publicKey,
+            allMintRole: admin.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+            rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          })
+          .transaction(),
         signers: [admin, mint, account],
       });
     })

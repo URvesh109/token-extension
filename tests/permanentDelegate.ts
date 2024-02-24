@@ -14,9 +14,11 @@ import {
   airdrop,
   expect,
   keypairFromFile,
-  log,
   sendAndConfirmTransaction,
 } from "./utils";
+import Debug from "debug";
+
+const log = Debug("log: permanentDelegate");
 
 describe("token-extension: permanent delegate usage", () => {
   // Configure the client to use the local cluster.
@@ -43,21 +45,19 @@ describe("token-extension: permanent delegate usage", () => {
       getMintLen([ExtensionType.PermanentDelegate])
     );
 
-    const permanentTx = await program.methods
-      .permanentDelegate(mintLen)
-      .accounts({
-        mint: mint.publicKey,
-        payer: admin.publicKey,
-        allMintRole: admin.publicKey,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-      })
-      .transaction();
-
     const pTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: permanentTx,
+      transaction: await program.methods
+        .permanentDelegate(mintLen)
+        .accounts({
+          mint: mint.publicKey,
+          payer: admin.publicKey,
+          allMintRole: admin.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        })
+        .transaction(),
       signers: [admin, mint],
     });
 
@@ -72,23 +72,21 @@ describe("token-extension: permanent delegate usage", () => {
 
     log("Admin ata 👇", associatedTA.toBase58());
 
-    const ataTx = await program.methods
-      .createAta()
-      .accounts({
-        mint: mint.publicKey,
-        payer: admin.publicKey,
-        associatedToken: associatedTA,
-        wallet: admin.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        associatedProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      })
-      .transaction();
-
     const ataId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: ataTx,
+      transaction: await program.methods
+        .createAta()
+        .accounts({
+          mint: mint.publicKey,
+          payer: admin.publicKey,
+          associatedToken: associatedTA,
+          wallet: admin.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          associatedProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        })
+        .transaction(),
       signers: [admin],
     });
 
@@ -102,78 +100,70 @@ describe("token-extension: permanent delegate usage", () => {
     );
     log("Receiver ata 👇", receiverATA.toBase58());
 
-    const recAtaTx = await program.methods
-      .createAta()
-      .accounts({
-        mint: mint.publicKey,
-        payer: receiver.publicKey,
-        associatedToken: receiverATA,
-        wallet: receiver.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-        associatedProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      })
-      .transaction();
-
-    const rAtaIdawait = await sendAndConfirmTransaction({
+    const recTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: recAtaTx,
+      transaction: await program.methods
+        .createAta()
+        .accounts({
+          mint: mint.publicKey,
+          payer: receiver.publicKey,
+          associatedToken: receiverATA,
+          wallet: receiver.publicKey,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+          associatedProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        })
+        .transaction(),
       signers: [receiver],
     });
 
-    log("txId", rAtaIdawait);
-
-    const mintToAdminAtaTx = await program.methods
-      .mintTo(new anchor.BN(100))
-      .accounts({
-        mint: mint.publicKey,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        associatedToken: associatedTA,
-        authority: admin.publicKey,
-      })
-      .transaction();
+    log("Receiver ata tx id", recTxId);
 
     const mintToRecAtaId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: mintToAdminAtaTx,
+      transaction: await program.methods
+        .mintTo(new anchor.BN(100))
+        .accounts({
+          mint: mint.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          associatedToken: associatedTA,
+          authority: admin.publicKey,
+        })
+        .transaction(),
       signers: [admin],
     });
 
     log("Minted to admin ata 👇\ntxId", mintToRecAtaId);
 
-    const transferTx = await program.methods
-      .transferTo(new anchor.BN(50), new anchor.BN(0))
-      .accounts({
-        mint: mint.publicKey,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        fromAcc: associatedTA,
-        toAcc: receiverATA,
-        authority: admin.publicKey,
-      })
-      .transaction();
-
     const transTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: transferTx,
+      transaction: await program.methods
+        .transferTo(new anchor.BN(50), new anchor.BN(0))
+        .accounts({
+          mint: mint.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          fromAcc: associatedTA,
+          toAcc: receiverATA,
+          authority: admin.publicKey,
+        })
+        .transaction(),
       signers: [admin],
     });
 
     log("Transfer token from admin to receiver ata 👇\ntxId", transTxId);
 
-    const burnTx = await program.methods
-      .burnCpi(new anchor.BN(10))
-      .accounts({
-        mint: mint.publicKey,
-        from: receiverATA,
-        token2022Program: TOKEN_2022_PROGRAM_ID,
-        delegate: admin.publicKey, // burned by delegate authority instead of owner.
-      })
-      .transaction();
-
     const burnTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
-      transaction: burnTx,
+      transaction: await program.methods
+        .burnCpi(new anchor.BN(10))
+        .accounts({
+          mint: mint.publicKey,
+          from: receiverATA,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          delegate: admin.publicKey, // burned by delegate authority instead of owner.
+        })
+        .transaction(),
       signers: [admin],
     });
     log("Burn txId", burnTxId);

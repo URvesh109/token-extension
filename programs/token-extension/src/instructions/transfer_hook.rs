@@ -39,7 +39,7 @@ impl<'info> InitializeHookMint<'info> {
     }
 }
 
-pub(crate) fn handler_for_initialize_hook_mint(
+pub(crate) fn handler_to_initialize_hook_mint(
     ctx: Context<InitializeHookMint>,
     mint_len: u64,
     transfer_hook_program_id: Option<Pubkey>,
@@ -109,7 +109,7 @@ pub struct TransferHookToken<'info> {
     pub authority: Signer<'info>,
 }
 
-pub(crate) fn handler_for_transfer_token<'a>(
+pub(crate) fn handler_to_transfer_token<'a>(
     ctx: Context<'_, '_, '_, 'a, TransferHookToken<'a>>,
     amount: u64,
     decimals: u8,

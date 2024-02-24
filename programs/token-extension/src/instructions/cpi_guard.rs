@@ -123,7 +123,7 @@ impl<'info> TransferToken<'info> {
     }
 }
 
-pub(crate) fn handler_for_transfer_token(
+pub(crate) fn handler_to_transfer_token(
     ctx: Context<TransferToken>,
     amount: u64,
     decimals: u8,

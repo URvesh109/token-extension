@@ -41,7 +41,7 @@ impl<'info> PermanentDelegate<'info> {
     }
 }
 
-pub(crate) fn handle_permanent_delegate(
+pub(crate) fn handler_to_permanent_delegate(
     ctx: Context<PermanentDelegate>,
     mint_len: u64,
 ) -> Result<()> {
@@ -118,7 +118,7 @@ impl<'info> CreateATA<'info> {
     }
 }
 
-pub(crate) fn handle_create_ata(ctx: Context<CreateATA>) -> Result<()> {
+pub(crate) fn handler_to_create_ata(ctx: Context<CreateATA>) -> Result<()> {
     let all = ctx.accounts;
 
     create_idempotent(all.create_ata_cpi())
@@ -150,7 +150,7 @@ impl<'info> BurnCpi<'info> {
     }
 }
 
-pub(crate) fn handle_for_burn(ctx: Context<BurnCpi>, amount: u64) -> Result<()> {
+pub(crate) fn handler_to_burn(ctx: Context<BurnCpi>, amount: u64) -> Result<()> {
     let all = ctx.accounts;
 
     burn(all.burn_cpi(), amount)

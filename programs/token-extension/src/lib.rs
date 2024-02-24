@@ -117,15 +117,15 @@ pub mod token_extension {
     }
 
     pub fn permanent_delegate(ctx: Context<PermanentDelegate>, mint_len: u64) -> Result<()> {
-        permanent_delegate::handle_permanent_delegate(ctx, mint_len)
+        permanent_delegate::handler_to_permanent_delegate(ctx, mint_len)
     }
 
     pub fn create_ata(ctx: Context<CreateATA>) -> Result<()> {
-        permanent_delegate::handle_create_ata(ctx)
+        permanent_delegate::handler_to_create_ata(ctx)
     }
 
     pub fn burn_cpi(ctx: Context<BurnCpi>, amount: u64) -> Result<()> {
-        permanent_delegate::handle_for_burn(ctx, amount)
+        permanent_delegate::handler_to_burn(ctx, amount)
     }
 
     pub fn initialize_token_account_with(
@@ -136,7 +136,7 @@ pub mod token_extension {
     }
 
     pub fn transfer_token(ctx: Context<TransferToken>, amount: u64, decimals: u8) -> Result<()> {
-        cpi_guard::handler_for_transfer_token(ctx, amount, decimals)
+        cpi_guard::handler_to_transfer_token(ctx, amount, decimals)
     }
 
     pub fn initialize_hook_mint(
@@ -144,7 +144,7 @@ pub mod token_extension {
         mint_len: u64,
         transfer_hook_program_id: Option<Pubkey>,
     ) -> Result<()> {
-        transfer_hook::handler_for_initialize_hook_mint(ctx, mint_len, transfer_hook_program_id)
+        transfer_hook::handler_to_initialize_hook_mint(ctx, mint_len, transfer_hook_program_id)
     }
 
     pub fn transfer_hook_token<'a>(
@@ -152,6 +152,6 @@ pub mod token_extension {
         amount: u64,
         decimals: u8,
     ) -> Result<()> {
-        transfer_hook::handler_for_transfer_token(ctx, amount, decimals)
+        transfer_hook::handler_to_transfer_token(ctx, amount, decimals)
     }
 }

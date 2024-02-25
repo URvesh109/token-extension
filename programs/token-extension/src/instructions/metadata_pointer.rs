@@ -27,9 +27,9 @@ pub enum Field {
     Key(String),
 }
 
-impl Into<MetaField> for Field {
-    fn into(self) -> MetaField {
-        match self {
+impl From<Field> for MetaField {
+    fn from(value: Field) -> Self {
+        match value {
             Field::Name => MetaField::Name,
             Field::Symbol => MetaField::Symbol,
             Field::Uri => MetaField::Uri,

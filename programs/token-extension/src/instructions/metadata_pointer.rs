@@ -84,7 +84,7 @@ pub(crate) fn handler_to_initialize_metadata_pointer(
     invoke(
         &system_instruction::create_account(
             all.payer.key,
-            &all.mint.key(),
+            all.mint.key,
             Rent::get()?.minimum_balance((mint_len * 2) as usize),
             mint_len,
             all.token_2022_program.key,

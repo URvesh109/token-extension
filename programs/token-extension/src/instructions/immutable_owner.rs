@@ -73,8 +73,8 @@ pub(crate) fn handler(ctx: Context<ImmutableOwner>, mint_len: u64, account_len: 
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.mint.key(),
+            all.payer.key,
+            all.mint.key,
             Rent::get()?.minimum_balance(mint_len as usize),
             mint_len,
             &Token2022::id(),
@@ -90,8 +90,8 @@ pub(crate) fn handler(ctx: Context<ImmutableOwner>, mint_len: u64, account_len: 
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.account.key(),
+            all.payer.key,
+            all.account.key,
             Rent::get()?.minimum_balance(account_len as usize),
             account_len,
             &Token2022::id(),

@@ -49,8 +49,8 @@ pub(crate) fn handler_to_initialize_hook_mint(
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.mint.key(),
+            all.payer.key,
+            all.mint.key,
             Rent::get()?.minimum_balance(mint_len as usize),
             mint_len,
             &token_2022::ID,

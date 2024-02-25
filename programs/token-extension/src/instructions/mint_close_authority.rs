@@ -53,8 +53,8 @@ pub(crate) fn handler(ctx: Context<MintCloseAuthority>, data_len: u64) -> Result
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.mint.key(),
+            all.payer.key,
+            all.mint.key,
             Rent::get()?.minimum_balance(data_len as usize),
             data_len,
             &token_2022::ID,

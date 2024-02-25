@@ -52,8 +52,8 @@ pub(crate) fn handler_to_enable_memo(ctx: Context<EnableMemo>, account_len: u64)
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.receiver_acc.key(),
+            all.payer.key,
+            all.receiver_acc.key,
             Rent::get()?.minimum_balance(account_len as usize),
             account_len,
             &Token2022::id(),

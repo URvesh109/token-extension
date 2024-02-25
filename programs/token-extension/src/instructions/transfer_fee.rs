@@ -60,8 +60,8 @@ pub(crate) fn handler(
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.mint.key(),
+            all.payer.key,
+            all.mint.key,
             Rent::get()?.minimum_balance(data_len as usize),
             data_len,
             &Token2022::id(),

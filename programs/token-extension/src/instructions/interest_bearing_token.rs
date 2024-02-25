@@ -49,8 +49,8 @@ pub(crate) fn handler_to_interest_bearing_token(
     let all = ctx.accounts;
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.mint.key(),
+            all.payer.key,
+            all.mint.key,
             Rent::get()?.minimum_balance(mint_len as usize),
             mint_len,
             &Token2022::id(),

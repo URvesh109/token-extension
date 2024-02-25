@@ -55,8 +55,8 @@ pub(crate) fn handler_to_initialize_token_account(
 
     invoke(
         &system_instruction::create_account(
-            &all.payer.key(),
-            &all.token_acc.key(),
+            all.payer.key,
+            all.token_acc.key,
             Rent::get()?.minimum_balance(account_len as usize),
             account_len,
             &Token2022::id(),

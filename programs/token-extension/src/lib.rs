@@ -159,7 +159,20 @@ pub mod token_extension {
         ctx: Context<MetadataPointer>,
         mint_len: u64,
         decimals: u8,
+        name: String,
+        symbol: String,
+        uri: String,
     ) -> Result<()> {
-        metadata_pointer::handler_to_initialize_metadata_pointer(ctx, mint_len, decimals)
+        metadata_pointer::handler_to_initialize_metadata_pointer(
+            ctx, mint_len, decimals, name, symbol, uri,
+        )
+    }
+
+    pub fn update_metadata_field(
+        ctx: Context<UpdateMetadataField>,
+        field: Field,
+        value: String,
+    ) -> Result<()> {
+        metadata_pointer::handler_to_update_metadata_field(ctx, field, value)
     }
 }

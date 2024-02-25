@@ -14,4 +14,10 @@ pub enum ErrorCode {
     InvalidAccountState,
     #[msg("ATA is invalid")]
     InvalidATA,
+    #[msg("Name is invaid")]
+    InvalidName,
+    #[msg("Symbol is invaid")]
+    InvalidSymbol,
+    #[msg("Uri is invalid")]
+    InvalidUri,
 }

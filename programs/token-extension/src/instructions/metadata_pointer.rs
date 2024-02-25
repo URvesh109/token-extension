@@ -1,13 +1,42 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-use anchor_spl::{
-    token_2022::{initialize_mint2, InitializeMint2},
-    token_interface::{
-        spl_token_2022::extension::metadata_pointer::instruction::initialize, Token2022,
+use {
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
+    },
+    anchor_spl::{
+        token_2022::{initialize_mint2, InitializeMint2},
+        token_interface::{
+            spl_token_2022::extension::metadata_pointer::instruction::initialize, Mint, Token2022,
+        },
+    },
+    spl_token_metadata_interface::{
+        instruction::{initialize as initialize_metadata, update_field},
+        state::Field as MetaField,
     },
 };
+
+#[derive(AnchorSerialize, AnchorDeserialize)]
+pub enum Field {
+    /// The name field, corresponding to `TokenMetadata.name`
+    Name,
+    /// The symbol field, corresponding to `TokenMetadata.symbol`
+    Symbol,
+    /// The uri field, corresponding to `TokenMetadata.uri`
+    Uri,
+    /// A user field, whose key is given by the associated string
+    Key(String),
+}
+
+impl Into<MetaField> for Field {
+    fn into(self) -> MetaField {
+        match self {
+            Field::Name => MetaField::Name,
+            Field::Symbol => MetaField::Symbol,
+            Field::Uri => MetaField::Uri,
+            Field::Key(v) => MetaField::Key(v),
+        }
+    }
+}
 
 use crate::error::ErrorCode;
 

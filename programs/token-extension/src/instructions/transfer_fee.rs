@@ -1,25 +1,25 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-
-use crate::error::ErrorCode;
-use anchor_spl::{
-    token_2022::{
-        initialize_mint2, mint_to,
-        spl_token_2022::extension::transfer_fee::instruction::{
-            harvest_withheld_tokens_to_mint, initialize_transfer_fee_config,
-            transfer_checked_with_fee, withdraw_withheld_tokens_from_accounts,
-            withdraw_withheld_tokens_from_mint,
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
+    },
+    anchor_spl::token_2022::spl_token_2022,
+    anchor_spl::{
+        token_2022::{
+            initialize_mint2, mint_to,
+            spl_token_2022::extension::transfer_fee::instruction::{
+                harvest_withheld_tokens_to_mint, initialize_transfer_fee_config,
+                transfer_checked_with_fee, withdraw_withheld_tokens_from_accounts,
+                withdraw_withheld_tokens_from_mint,
+            },
+            InitializeMint2, MintTo, Token2022,
         },
-        InitializeMint2, MintTo, Token2022,
-    },
-    token_interface::{
-        spl_token_2022::extension::StateWithExtensionsMut, Mint, TokenAccount, TokenInterface,
+        token_interface::{
+            spl_token_2022::extension::StateWithExtensionsMut, Mint, TokenAccount, TokenInterface,
+        },
     },
 };
-
-use anchor_spl::token_2022::spl_token_2022;
 
 #[derive(Accounts)]
 pub struct TransferFeeConfig<'info> {

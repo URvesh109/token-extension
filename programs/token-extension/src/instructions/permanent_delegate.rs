@@ -1,16 +1,19 @@
-use crate::error::ErrorCode;
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-use anchor_spl::{
-    associated_token::{
-        create_idempotent, get_associated_token_address_with_program_id, AssociatedToken, Create,
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
     },
-    token_2022::{burn, initialize_mint2, Burn, InitializeMint2, Token2022},
-    token_interface::{
-        spl_token_2022::instruction::initialize_permanent_delegate, Mint, TokenAccount,
-        TokenInterface,
+    anchor_spl::{
+        associated_token::{
+            create_idempotent, get_associated_token_address_with_program_id, AssociatedToken,
+            Create,
+        },
+        token_2022::{burn, initialize_mint2, Burn, InitializeMint2, Token2022},
+        token_interface::{
+            spl_token_2022::instruction::initialize_permanent_delegate, Mint, TokenAccount,
+            TokenInterface,
+        },
     },
 };
 

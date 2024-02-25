@@ -1,21 +1,22 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-use anchor_spl::{
-    token_2022::{
-        self, initialize_mint2,
-        spl_token_2022::{
-            extension::default_account_state::instruction::{
-                initialize_default_account_state, update_default_account_state,
-            },
-            state::AccountState,
-        },
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
     },
-    token_interface::{InitializeMint2, Mint, Token2022},
+    anchor_spl::{
+        token_2022::{
+            self, initialize_mint2,
+            spl_token_2022::{
+                extension::default_account_state::instruction::{
+                    initialize_default_account_state, update_default_account_state,
+                },
+                state::AccountState,
+            },
+        },
+        token_interface::{InitializeMint2, Mint, Token2022},
+    },
 };
-
-use crate::error::ErrorCode;
 
 #[derive(Accounts)]
 pub struct DefaultAccountState<'info> {

@@ -1,17 +1,18 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-use anchor_spl::{
-    memo::{build_memo, BuildMemo, Memo},
-    token_2022::{initialize_account3, transfer_checked, InitializeAccount3, TransferChecked},
-    token_interface::{
-        spl_token_2022::extension::memo_transfer::instruction::enable_required_transfer_memos,
-        Mint, Token2022, TokenAccount, TokenInterface,
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
+    },
+    anchor_spl::{
+        memo::{build_memo, BuildMemo, Memo},
+        token_2022::{initialize_account3, transfer_checked, InitializeAccount3, TransferChecked},
+        token_interface::{
+            spl_token_2022::extension::memo_transfer::instruction::enable_required_transfer_memos,
+            Mint, Token2022, TokenAccount, TokenInterface,
+        },
     },
 };
-
-use crate::error::ErrorCode;
 
 #[derive(Accounts)]
 pub struct EnableMemo<'info> {

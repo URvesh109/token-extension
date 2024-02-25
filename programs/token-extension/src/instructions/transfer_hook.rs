@@ -1,14 +1,15 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-
-use crate::error::ErrorCode;
-use anchor_spl::{
-    token_2022::{self, initialize_mint2, InitializeMint2, Token2022},
-    token_interface::{
-        spl_token_2022::extension::transfer_hook::instruction::initialize,
-        spl_token_2022::onchain::invoke_transfer_checked, Mint, TokenAccount,
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
+    },
+    anchor_spl::{
+        token_2022::{self, initialize_mint2, InitializeMint2, Token2022},
+        token_interface::{
+            spl_token_2022::extension::transfer_hook::instruction::initialize,
+            spl_token_2022::onchain::invoke_transfer_checked, Mint, TokenAccount,
+        },
     },
 };
 

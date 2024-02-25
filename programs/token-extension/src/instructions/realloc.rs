@@ -1,10 +1,12 @@
-use anchor_lang::{prelude::*, solana_program::program::invoke};
-use anchor_spl::token_interface::{
-    spl_token_2022::extension::{
-        memo_transfer::instruction::enable_required_transfer_memos, ExtensionType,
+use {
+    anchor_lang::{prelude::*, solana_program::program::invoke},
+    anchor_spl::token_interface::{
+        spl_token_2022::extension::{
+            memo_transfer::instruction::enable_required_transfer_memos, ExtensionType,
+        },
+        spl_token_2022::instruction::reallocate,
+        Token2022, TokenAccount,
     },
-    spl_token_2022::instruction::reallocate,
-    Token2022, TokenAccount,
 };
 
 #[derive(Accounts)]

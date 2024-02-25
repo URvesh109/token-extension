@@ -1,7 +1,9 @@
-use anchor_lang::prelude::*;
-use anchor_spl::{
-    token_2022::{close_account, CloseAccount},
-    token_interface::{Mint, Token2022},
+use {
+    anchor_lang::prelude::*,
+    anchor_spl::{
+        token_2022::{close_account, CloseAccount},
+        token_interface::{Mint, Token2022},
+    },
 };
 
 #[derive(Accounts)]

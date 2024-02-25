@@ -1,16 +1,17 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-use anchor_spl::{
-    token_2022::{
-        initialize_account3, initialize_immutable_owner, initialize_mint2, InitializeAccount3,
-        InitializeImmutableOwner, InitializeMint2,
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
     },
-    token_interface::Token2022,
+    anchor_spl::{
+        token_2022::{
+            initialize_account3, initialize_immutable_owner, initialize_mint2, InitializeAccount3,
+            InitializeImmutableOwner, InitializeMint2,
+        },
+        token_interface::Token2022,
+    },
 };
-
-use crate::error::ErrorCode;
 
 #[derive(Accounts)]
 pub struct ImmutableOwner<'info> {

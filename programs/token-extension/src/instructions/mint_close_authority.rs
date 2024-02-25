@@ -1,12 +1,13 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke, system_instruction},
-};
-
-use crate::error::ErrorCode;
-use anchor_spl::token_2022::{
-    self, initialize_mint2, initialize_mint_close_authority, InitializeMint2,
-    InitializeMintCloseAuthority, Token2022,
+use {
+    crate::error::ErrorCode,
+    anchor_lang::{
+        prelude::*,
+        solana_program::{program::invoke, system_instruction},
+    },
+    anchor_spl::token_2022::{
+        self, initialize_mint2, initialize_mint_close_authority, InitializeMint2,
+        InitializeMintCloseAuthority, Token2022,
+    },
 };
 
 #[derive(Accounts)]

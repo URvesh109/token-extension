@@ -109,7 +109,6 @@ pub(crate) fn handler_to_initialize_metadata_pointer(
             all.token_2022_program.to_account_info(),
             all.mint.to_account_info(),
             all.all_mint_role.to_account_info(),
-            all.mint.to_account_info(),
         ],
     )?;
 

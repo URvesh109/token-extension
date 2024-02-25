@@ -154,4 +154,12 @@ pub mod token_extension {
     ) -> Result<()> {
         transfer_hook::handler_to_transfer_token(ctx, amount, decimals)
     }
+
+    pub fn initialize_metadata_pointer(
+        ctx: Context<MetadataPointer>,
+        mint_len: u64,
+        decimals: u8,
+    ) -> Result<()> {
+        metadata_pointer::handler_to_initialize_metadata_pointer(ctx, mint_len, decimals)
+    }
 }

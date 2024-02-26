@@ -175,4 +175,12 @@ pub mod token_extension {
     ) -> Result<()> {
         metadata_pointer::handler_to_update_metadata_field(ctx, field, value)
     }
+
+    pub fn initialize_confidential_mint(
+        ctx: Context<InitializeConfidentialMint>,
+        mint_len: u64,
+        decimals: u8,
+    ) -> Result<()> {
+        confidential_transfer::handler_to_initialize_confidential_mint(ctx, mint_len, decimals)
+    }
 }

@@ -1,4 +1,5 @@
 pub mod close_mint_account;
+pub mod confidential_transfer;
 pub mod cpi_guard;
 pub mod default_account_state;
 pub mod immutable_owner;
@@ -13,6 +14,7 @@ pub mod transfer_fee;
 pub mod transfer_hook;
 
 pub use close_mint_account::*;
+pub use confidential_transfer::*;
 pub use cpi_guard::*;
 pub use default_account_state::*;
 pub use immutable_owner::*;

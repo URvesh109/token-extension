@@ -115,7 +115,7 @@ pub(crate) fn handler_to_initialize_metadata_pointer(
     initialize_mint2(
         all.initialize_mint_2_cpi(),
         decimals,
-        &all.all_mint_role.key(),
+        all.all_mint_role.key,
         None,
     )?;
 

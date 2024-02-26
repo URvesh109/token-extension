@@ -71,11 +71,6 @@ pub(crate) fn handler(ctx: Context<MintCloseAuthority>, data_len: u64) -> Result
         Some(&all.all_mint_role.key()),
     )?;
 
-    initialize_mint2(
-        all.initialize_mint_2_cpi(),
-        6,
-        &all.all_mint_role.key(),
-        None,
-    )?;
+    initialize_mint2(all.initialize_mint_2_cpi(), 6, all.all_mint_role.key, None)?;
     Ok(())
 }

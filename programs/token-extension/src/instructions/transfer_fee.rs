@@ -90,12 +90,7 @@ pub(crate) fn handler(
         ],
     )?;
 
-    initialize_mint2(
-        all.initialize_mint_2_cpi(),
-        2,
-        &all.all_mint_role.key(),
-        None,
-    )?;
+    initialize_mint2(all.initialize_mint_2_cpi(), 2, all.all_mint_role.key, None)?;
 
     Ok(())
 }

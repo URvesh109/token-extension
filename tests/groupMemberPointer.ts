@@ -5,15 +5,19 @@ import {
   TOKEN_2022_PROGRAM_ID,
   ExtensionType,
   getMintLen,
-  getAccountLen,
+  createMint,
 } from "@solana/spl-token";
 import * as path from "path";
-import { keypairFromFile, sendAndConfirmTransaction } from "./utils";
+import {
+  keypairFromFile,
+  rejectedWith,
+  sendAndConfirmTransaction,
+} from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:groupPointer");
+const log = Debug("log:groupMemberPointer");
 
-describe("token-extension: group pointer", () => {
+describe("token-extension: group and member pointer", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -23,27 +27,23 @@ describe("token-extension: group pointer", () => {
   const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
   log("Admin ", admin.publicKey.toBase58());
 
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
+  const group = anchor.web3.Keypair.generate();
+  log("Group", group.publicKey.toBase58());
 
-  const groupAddress = anchor.web3.Keypair.generate();
-  log("GroupAddress", groupAddress.publicKey.toBase58());
+  const member = anchor.web3.Keypair.generate();
+  log("Member", member.publicKey.toBase58());
 
-  it("intialize group pointer", async () => {
+  it("intialize group and member mint pointer", async () => {
     const mintLen = new anchor.BN(getMintLen([ExtensionType.GroupPointer]));
-    const accountLen = new anchor.BN(
-      getAccountLen([ExtensionType.GroupPointer])
-    );
     const maxSize = 12;
     const decimals = 2;
 
     const txId = await sendAndConfirmTransaction({
       connection: provider.connection,
       transaction: await program.methods
-        .initializeGroupPointer(mintLen, accountLen, decimals, maxSize)
+        .initializeGroupPointer(mintLen, decimals, maxSize)
         .accounts({
-          mint: mint.publicKey,
-          groupAddress: groupAddress.publicKey,
+          mint: group.publicKey,
           payer: admin.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
@@ -51,8 +51,30 @@ describe("token-extension: group pointer", () => {
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, mint, groupAddress],
+      signers: [admin, group],
     });
-    log("Mint initialized txId ", txId); // TODO: fix this issue: "Error: Invalid instruction"
+    log("Group initialized txId ", txId);
+
+    const mintLenGMP = new anchor.BN(
+      getMintLen([ExtensionType.GroupMemberPointer])
+    );
+
+    const txIdGMP = await sendAndConfirmTransaction({
+      connection: provider.connection,
+      transaction: await program.methods
+        .initializeMemberPointer(mintLenGMP, decimals)
+        .accounts({
+          member: member.publicKey,
+          group: group.publicKey,
+          payer: admin.publicKey,
+          allMintRole: admin.publicKey,
+          token2022Program: TOKEN_2022_PROGRAM_ID,
+          systemProgram: anchor.web3.SystemProgram.programId,
+          rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        })
+        .transaction(),
+      signers: [admin, member],
+    });
+    log("Member initialized txId ", txIdGMP);
   });
 });

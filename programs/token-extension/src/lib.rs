@@ -194,16 +194,17 @@ pub mod token_extension {
     pub fn initialize_group_pointer(
         ctx: Context<InitializeGroupPointer>,
         mint_len: u64,
-        account_len: u64,
         decimals: u8,
         max_size: u32,
     ) -> Result<()> {
-        group_pointer::handler_to_initialize_group_pointer(
-            ctx,
-            mint_len,
-            account_len,
-            decimals,
-            max_size,
-        )
+        group_pointer::handler_to_initialize_group_pointer(ctx, mint_len, decimals, max_size)
+    }
+
+    pub fn initialize_member_pointer(
+        ctx: Context<InitializeMemberPointer>,
+        mint_len: u64,
+        decimals: u8,
+    ) -> Result<()> {
+        member_pointer::handler_to_initialize_member_pointer(ctx, mint_len, decimals)
     }
 }

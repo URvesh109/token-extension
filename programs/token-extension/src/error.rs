@@ -20,4 +20,6 @@ pub enum ErrorCode {
     InvalidSymbol,
     #[msg("Uri is invalid")]
     InvalidUri,
+    #[msg("Provided address is not group address")]
+    InvalidGroupAddress,
 }

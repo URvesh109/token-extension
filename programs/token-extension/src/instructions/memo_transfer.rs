@@ -61,7 +61,6 @@ pub(crate) fn handler_to_enable_memo(ctx: Context<EnableMemo>, account_len: u64)
         &[
             all.payer.to_account_info(),
             all.receiver_acc.to_account_info(),
-            all.system_program.to_account_info(),
         ],
     )?;
 

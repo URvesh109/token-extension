@@ -59,11 +59,7 @@ pub(crate) fn handler_for_default_account_state(
             data_len,
             &token_2022::ID,
         ),
-        &[
-            all.payer.to_account_info(),
-            all.mint.to_account_info(),
-            all.system_program.to_account_info(),
-        ],
+        &[all.payer.to_account_info(), all.mint.to_account_info()],
     )?;
 
     let ix = initialize_default_account_state(

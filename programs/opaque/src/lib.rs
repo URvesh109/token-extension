@@ -18,7 +18,6 @@ pub mod opaque {
             &[
                 all.from_wallet.to_account_info(),
                 all.to_wallet.to_account_info(),
-                all.system_program.to_account_info(),
             ],
         )?;
         Ok(())

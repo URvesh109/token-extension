@@ -58,11 +58,7 @@ pub(crate) fn handler_to_permanent_delegate(
             mint_len,
             &Token2022::id(),
         ),
-        &[
-            all.payer.to_account_info(),
-            all.mint.to_account_info(),
-            all.system_program.to_account_info(),
-        ],
+        &[all.payer.to_account_info(), all.mint.to_account_info()],
     )?;
 
     let ix = initialize_permanent_delegate(

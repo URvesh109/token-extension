@@ -64,7 +64,6 @@ pub(crate) fn handler_to_initialize_token_account(
         &[
             all.wallet.to_account_info(),
             all.token_acc.to_account_info(),
-            all.system_program.to_account_info(),
         ],
     )?;
 

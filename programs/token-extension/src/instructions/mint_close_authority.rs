@@ -59,11 +59,7 @@ pub(crate) fn handler(ctx: Context<MintCloseAuthority>, data_len: u64) -> Result
             data_len,
             &token_2022::ID,
         ),
-        &[
-            all.payer.to_account_info(),
-            all.mint.to_account_info(),
-            all.system_program.to_account_info(),
-        ],
+        &[all.payer.to_account_info(), all.mint.to_account_info()],
     )?;
 
     initialize_mint_close_authority(

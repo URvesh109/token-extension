@@ -71,11 +71,7 @@ pub(crate) fn handler(
             data_len,
             &Token2022::id(),
         ),
-        &[
-            all.payer.to_account_info(),
-            all.mint.to_account_info(),
-            all.system_program.to_account_info(),
-        ],
+        &[all.payer.to_account_info(), all.mint.to_account_info()],
     )?;
 
     let ix = initialize_transfer_fee_config(

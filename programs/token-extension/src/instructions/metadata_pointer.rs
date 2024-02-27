@@ -89,11 +89,7 @@ pub(crate) fn handler_to_initialize_metadata_pointer(
             mint_len,
             all.token_2022_program.key,
         ),
-        &[
-            all.payer.to_account_info(),
-            all.mint.to_account_info(),
-            all.system_program.to_account_info(),
-        ],
+        &[all.payer.to_account_info(), all.mint.to_account_info()],
     )?;
 
     let ix = initialize(

@@ -183,4 +183,11 @@ pub mod token_extension {
     ) -> Result<()> {
         confidential_transfer::handler_to_initialize_confidential_mint(ctx, mint_len, decimals)
     }
+
+    pub fn initialize_confidential_account(
+        ctx: Context<InitializeConfidentialAccount>,
+        account_len: u64,
+    ) -> Result<()> {
+        confidential_transfer::handler_to_initialize_confidential_account(ctx, account_len)
+    }
 }

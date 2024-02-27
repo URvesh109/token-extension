@@ -4,19 +4,24 @@ use {
         prelude::*,
         solana_program::{program::invoke, system_instruction},
     },
-    anchor_spl::token_2022::spl_token_2022,
     anchor_spl::{
         token_2022::{
             initialize_mint2, mint_to,
-            spl_token_2022::extension::transfer_fee::instruction::{
-                harvest_withheld_tokens_to_mint, initialize_transfer_fee_config,
-                transfer_checked_with_fee, withdraw_withheld_tokens_from_accounts,
-                withdraw_withheld_tokens_from_mint,
+            spl_token_2022::{
+                self,
+                extension::{
+                    transfer_fee::instruction::{
+                        harvest_withheld_tokens_to_mint, initialize_transfer_fee_config,
+                        transfer_checked_with_fee, withdraw_withheld_tokens_from_accounts,
+                        withdraw_withheld_tokens_from_mint,
+                    },
+                    BaseStateWithExtensions,
+                },
             },
             InitializeMint2, MintTo, Token2022,
         },
         token_interface::{
-            spl_token_2022::extension::StateWithExtensionsMut, Mint, TokenAccount, TokenInterface,
+            spl_token_2022::extension::StateWithExtensions, Mint, TokenAccount, TokenInterface,
         },
     },
 };
@@ -316,13 +321,13 @@ fn filter_sources_account_info<'a, 'info>(
 
     for acc_info in rem_accs {
         let account_info = acc_info.to_account_info();
-        let mut account_data = account_info.data.borrow_mut();
+        let account_data = account_info.data.borrow();
 
-        let mut token_account =
-            StateWithExtensionsMut::<spl_token_2022::state::Account>::unpack(&mut account_data)?;
+        let token_account =
+            StateWithExtensions::<spl_token_2022::state::Account>::unpack(&account_data)?;
 
         let token_account_extension = token_account
-            .get_extension_mut::<spl_token_2022::extension::transfer_fee::TransferFeeAmount>(
+            .get_extension::<spl_token_2022::extension::transfer_fee::TransferFeeAmount>(
         )?;
 
         let account_withheld_amount = u64::from(token_account_extension.withheld_amount);

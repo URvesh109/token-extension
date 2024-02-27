@@ -2382,6 +2382,7 @@ dependencies = [
  "anchor-spl",
  "opaque",
  "spl-token-2022 2.0.1",
+ "spl-token-group-interface",
  "spl-token-metadata-interface",
 ]
 

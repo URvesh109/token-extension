@@ -80,7 +80,7 @@ describe("token-extension transfer-fee", () => {
         TOKEN_2022_PROGRAM_ID
       );
 
-      log("Associated ", associatedTokenAcc.toBase58());
+      log("Admin ATA ", associatedTokenAcc.toBase58());
 
       await sendAndConfirmTransaction({
         connection: provider.connection,
@@ -108,7 +108,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      log("receiverAssociatedTokenAcc ", receiverAssociatedTokenAcc.toBase58());
+      log("Receiver ATA ", receiverAssociatedTokenAcc.toBase58());
 
       const receiver2AssociatedTokenAcc =
         await createAssociatedTokenAccountIdempotent(
@@ -120,10 +120,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      log(
-        "receiver2AssociatedTokenAcc ",
-        receiver2AssociatedTokenAcc.toBase58()
-      );
+      log("Receiver2 ATA ", receiver2AssociatedTokenAcc.toBase58());
 
       const receiver3AssociatedTokenAcc =
         await createAssociatedTokenAccountIdempotent(
@@ -135,10 +132,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      log(
-        "receiver3AssociatedTokenAcc ",
-        receiver3AssociatedTokenAcc.toBase58()
-      );
+      log("Receiver2 ATA ", receiver3AssociatedTokenAcc.toBase58());
 
       const transferAmount = new anchor.BN(500).mul(
         new anchor.BN(10).pow(new anchor.BN(2))
@@ -169,22 +163,6 @@ describe("token-extension transfer-fee", () => {
         ),
         fee.toNumber()
       );
-
-      // const withheldTx = await program.methods
-      //   .withdrawWithheldAccount()
-      //   .accounts({
-      //     mint: mint.publicKey,
-      //     destination: associatedTokenAcc,
-      //     token2022Program: TOKEN_2022_PROGRAM_ID,
-      //     authority: admin.publicKey,
-      //   })
-      //   .remainingAccounts(
-      //     await findWithheldTokenAndRemainingAccount({
-      //       connection: provider.connection,
-      //       mint: mint.publicKey,
-      //     })
-      //   )
-      //   .transaction();
 
       await sendAndConfirmTransaction({
         connection: provider.connection,

@@ -36,6 +36,6 @@ describe("Sol transfer", () => {
       transaction,
       signers: [admin],
     });
-    log("sol transfer txId ", txId);
+    log("Sol transfer id ", txId);
   });
 });

@@ -101,23 +101,23 @@ pub(crate) fn handler_to_initialize_group_pointer(
     )?;
 
     //TODO: fix this issue: "Error: Invalid instruction"
-    let ix = initialize_group(
-        all.token_2022_program.key,
-        &all.group_address.key(),
-        &all.mint.key(),
-        all.all_mint_role.key,
-        None,
-        max_size,
-    );
+    // let ix = initialize_group(
+    //     all.token_2022_program.key,
+    //     &all.group_address.key(),
+    //     &all.mint.key(),
+    //     all.all_mint_role.key,
+    //     None,
+    //     max_size,
+    // );
 
-    invoke(
-        &ix,
-        &[
-            all.group_address.to_account_info(),
-            all.mint.to_account_info(),
-            all.all_mint_role.to_account_info(),
-        ],
-    )?;
+    // invoke(
+    //     &ix,
+    //     &[
+    //         all.group_address.to_account_info(),
+    //         all.mint.to_account_info(),
+    //         all.all_mint_role.to_account_info(),
+    //     ],
+    // )?;
 
     Ok(())
 }

@@ -190,4 +190,12 @@ pub mod token_extension {
     ) -> Result<()> {
         confidential_transfer::handler_to_initialize_confidential_account(ctx, account_len)
     }
+
+    pub fn initialize_group_pointer(
+        ctx: Context<InitializeGroupPointer>,
+        mint_len: u64,
+        decimals: u8,
+    ) -> Result<()> {
+        group_pointer::handler_to_initialize_group_pointer(ctx, mint_len, decimals)
+    }
 }

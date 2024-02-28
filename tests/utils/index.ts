@@ -8,8 +8,40 @@ import {
   unpackAccount,
 } from "@solana/spl-token";
 import Debug from "debug";
+import * as path from "path";
 
-export const log = Debug("log:");
+const log = Debug("log:");
+
+export const fetchAdminKeypair = (): anchor.web3.Keypair => {
+  const admin = keypairFromFile(
+    path.join(__dirname, "../../keypairs/admin.json")
+  );
+  log("Admin ", admin.publicKey.toBase58());
+  return admin;
+};
+
+export const fetchReceiverKeypair = (): anchor.web3.Keypair => {
+  const receiver = keypairFromFile(
+    path.join(__dirname, "../../keypairs/receiver.json")
+  );
+  log("Receiver ", receiver.publicKey.toBase58());
+  return receiver;
+};
+export const fetchReceiver2Keypair = (): anchor.web3.Keypair => {
+  const receiver2 = keypairFromFile(
+    path.join(__dirname, "../../keypairs/receiver2.json")
+  );
+  log("Receiver2 ", receiver2.publicKey.toBase58());
+  return receiver2;
+};
+
+export const fetchReceiver3Keypair = (): anchor.web3.Keypair => {
+  const receiver3 = keypairFromFile(
+    path.join(__dirname, "../../keypairs/receiver3.json")
+  );
+  log("Receiver3 ", receiver3.publicKey.toBase58());
+  return receiver3;
+};
 
 export const MEMO_PROGRAM_ID = new anchor.web3.PublicKey(
   "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"

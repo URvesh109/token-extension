@@ -6,7 +6,12 @@ import {
   createAssociatedTokenAccountIdempotent,
   createMint,
 } from "@solana/spl-token";
-import { fetchAdminKeypair, sendAndConfirmTransaction } from "./utils";
+import {
+  airdrop,
+  fetchAdminKeypair,
+  fetchPayerKeypair,
+  sendAndConfirmTransaction,
+} from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: realloc");
@@ -20,6 +25,10 @@ describe("✅ token-extension: realloc usage", () => {
 
   it("realloc token account with memo transfer enable", async () => {
     const admin = fetchAdminKeypair();
+
+    const payer = fetchPayerKeypair();
+
+    await airdrop(provider, payer.publicKey);
 
     const mint = anchor.web3.Keypair.generate();
 
@@ -54,13 +63,13 @@ describe("✅ token-extension: realloc usage", () => {
         .realloc()
         .accounts({
           tokenAccount: associatedTokenAcc,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
         })
         .transaction(),
-      signers: [admin],
+      signers: [admin, payer],
     });
 
     log("Realloc txId ", rTid);

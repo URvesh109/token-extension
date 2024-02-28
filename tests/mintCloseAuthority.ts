@@ -6,7 +6,13 @@ import {
   ExtensionType,
   getMintLen,
 } from "@solana/spl-token";
-import { fetchAdminKeypair, runTest, sendAndConfirmTransaction } from "./utils";
+import {
+  airdrop,
+  fetchAdminKeypair,
+  fetchPayerKeypair,
+  runTest,
+  sendAndConfirmTransaction,
+} from "./utils";
 import { assert } from "chai";
 import Debug from "debug";
 
@@ -24,6 +30,10 @@ describe("✅ token-extension: mintCloseAuthority and closeMintAccount", () => {
     runTest(async () => {
       const admin = fetchAdminKeypair();
 
+      const payer = fetchPayerKeypair();
+
+      await airdrop(provider, payer.publicKey);
+
       const mint = anchor.web3.Keypair.generate();
       log("Mint", mint.publicKey.toBase58());
 
@@ -36,14 +46,14 @@ describe("✅ token-extension: mintCloseAuthority and closeMintAccount", () => {
           )
           .accounts({
             mint: mint.publicKey,
-            payer: admin.publicKey,
+            payer: payer.publicKey,
             allMintRole: admin.publicKey,
             token2022Program: TOKEN_2022_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
             rent: anchor.web3.SYSVAR_RENT_PUBKEY,
           })
           .transaction(),
-        signers: [admin, mint],
+        signers: [admin, mint, payer],
       });
 
       const data = await provider.connection.getParsedAccountInfo(

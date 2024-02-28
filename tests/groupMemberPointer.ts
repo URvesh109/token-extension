@@ -6,7 +6,12 @@ import {
   ExtensionType,
   getMintLen,
 } from "@solana/spl-token";
-import { fetchAdminKeypair, sendAndConfirmTransaction } from "./utils";
+import {
+  airdrop,
+  fetchAdminKeypair,
+  fetchPayerKeypair,
+  sendAndConfirmTransaction,
+} from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: groupMemberPointer");
@@ -20,6 +25,10 @@ describe("🚨 token-extension: intialize group and member pointer support issue
 
   it("🚨 missing support for intialize group and member pointer 🚨", async () => {
     const admin = fetchAdminKeypair();
+
+    const payer = fetchPayerKeypair();
+
+    await airdrop(provider, payer.publicKey);
 
     const group = anchor.web3.Keypair.generate();
     log("Group", group.publicKey.toBase58());
@@ -37,14 +46,14 @@ describe("🚨 token-extension: intialize group and member pointer support issue
         .initializeGroupPointer(mintLen, decimals, maxSize)
         .accounts({
           mint: group.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, group],
+      signers: [admin, group, payer],
     });
     log("Group initialized txId ", txId);
 

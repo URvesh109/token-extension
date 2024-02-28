@@ -6,7 +6,12 @@ import {
   ExtensionType,
   getAccountLen,
 } from "@solana/spl-token";
-import { sendAndConfirmTransaction, fetchAdminKeypair } from "./utils";
+import {
+  sendAndConfirmTransaction,
+  fetchAdminKeypair,
+  fetchPayerKeypair,
+  airdrop,
+} from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: confidentialTransfer");
@@ -20,6 +25,10 @@ describe("🚧🚧 token-extension: confidential transfer work in progress 🚧�
 
   it("intialize confidential", async () => {
     const admin = fetchAdminKeypair();
+
+    const payer = fetchPayerKeypair();
+
+    await airdrop(provider, payer.publicKey);
 
     const mint = anchor.web3.Keypair.generate();
     log("Mint", mint.publicKey.toBase58());
@@ -38,14 +47,14 @@ describe("🚧🚧 token-extension: confidential transfer work in progress 🚧�
         .initializeConfidentialMint(mintLen, 2)
         .accounts({
           mint: mint.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, mint],
+      signers: [admin, mint, payer],
     });
     log("Mint initialized id ", mintTxId);
 
@@ -60,14 +69,14 @@ describe("🚧🚧 token-extension: confidential transfer work in progress 🚧�
         .accounts({
           mint: mint.publicKey,
           tokenAccount: tokenAccount.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           owner: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, tokenAccount],
+      signers: [admin, tokenAccount, payer],
     });
     log("TokenAccount initialized id ", accTxId);
   });

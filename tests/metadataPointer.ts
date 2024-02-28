@@ -13,6 +13,7 @@ import {
   assert,
   fetchAdminKeypair,
   keypairFromFile,
+  fetchPayerKeypair,
 } from "./utils";
 import Debug from "debug";
 
@@ -27,6 +28,10 @@ describe("✅ token-extension: metadata pointer and token metadata", () => {
 
   it("intialize metadata pointer and token metadata", async () => {
     const admin = fetchAdminKeypair();
+
+    const payer = fetchPayerKeypair();
+
+    await airdrop(provider, payer.publicKey);
 
     const fakeUpdateAuth = keypairFromFile(
       path.join(__dirname, "../keypairs/receiver.json")
@@ -53,14 +58,14 @@ describe("✅ token-extension: metadata pointer and token metadata", () => {
         )
         .accounts({
           mint: mint.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, mint],
+      signers: [admin, mint, payer],
     });
     log("Mint hook initialized txId ", txId);
 
@@ -72,12 +77,12 @@ describe("✅ token-extension: metadata pointer and token metadata", () => {
         .updateMetadataField({ name: {} }, newName)
         .accounts({
           mint: mint.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           updateAuthority: admin.publicKey, // Update token metadata using correct updateAuthority
           token2022Program: TOKEN_2022_PROGRAM_ID,
         })
         .transaction(),
-      signers: [admin],
+      signers: [admin, payer],
     });
 
     log("Update metadata txId ", id);

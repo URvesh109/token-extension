@@ -8,8 +8,10 @@ import {
   AccountState,
 } from "@solana/spl-token";
 import {
+  airdrop,
   assert,
   fetchAdminKeypair,
+  fetchPayerKeypair,
   getTokenExtensionState,
   runTest,
   sendAndConfirmTransaction,
@@ -30,6 +32,10 @@ describe("✅ tokenExtension: default account state", () => {
     runTest(async () => {
       const admin = fetchAdminKeypair();
 
+      const payer = fetchPayerKeypair();
+
+      await airdrop(provider, payer.publicKey);
+
       const mint = anchor.web3.Keypair.generate();
       log("Mint", mint.publicKey.toBase58());
 
@@ -41,14 +47,14 @@ describe("✅ tokenExtension: default account state", () => {
           )
           .accounts({
             mint: mint.publicKey,
-            payer: admin.publicKey,
+            payer: payer.publicKey,
             allMintRole: admin.publicKey,
             token2022Program: TOKEN_2022_PROGRAM_ID,
             systemProgram: anchor.web3.SystemProgram.programId,
             rent: anchor.web3.SYSVAR_RENT_PUBKEY,
           })
           .transaction(),
-        signers: [admin, mint],
+        signers: [admin, mint, payer],
       });
 
       log("Mint with defaultAccountState txId", mintId);

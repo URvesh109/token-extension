@@ -14,6 +14,7 @@ import {
 import {
   airdrop,
   fetchAdminKeypair,
+  fetchPayerKeypair,
   fetchReceiverKeypair,
   rejectedWith,
   sendAndConfirmTransaction,
@@ -38,9 +39,11 @@ describe("✅ token-extension: cpi guard enable", () => {
 
     const admin = fetchAdminKeypair();
 
+    const payer = fetchPayerKeypair();
+
     const receiver = fetchReceiverKeypair();
 
-    await airdrop(provider, receiver.publicKey);
+    await airdrop(provider, receiver.publicKey, payer.publicKey);
 
     const tokenAccount = anchor.web3.Keypair.generate();
     log("TokenAccount", tokenAccount.publicKey.toBase58());
@@ -70,7 +73,7 @@ describe("✅ token-extension: cpi guard enable", () => {
       .accounts({
         mint: mint.publicKey,
         tokenAcc: tokenAccount.publicKey,
-        payer: admin.publicKey,
+        payer: payer.publicKey,
         wallet: admin.publicKey,
         token2022Program: TOKEN_2022_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
@@ -92,7 +95,7 @@ describe("✅ token-extension: cpi guard enable", () => {
     const txId = await sendAndConfirmTransaction({
       connection: provider.connection,
       transaction,
-      signers: [admin, tokenAccount],
+      signers: [admin, tokenAccount, payer],
     });
     log("TokenAccount with CPI Guard txId ", txId);
 

@@ -7,7 +7,13 @@ import {
   getMintLen,
   getAccountLen,
 } from "@solana/spl-token";
-import { fetchAdminKeypair, runTest, sendAndConfirmTransaction } from "./utils";
+import {
+  airdrop,
+  fetchAdminKeypair,
+  fetchPayerKeypair,
+  runTest,
+  sendAndConfirmTransaction,
+} from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: immutableOwner");
@@ -23,6 +29,10 @@ describe("✅ tokenExtension: immutableOwner", () => {
     "set tokenAccount owner as immutable",
     runTest(async () => {
       const admin = fetchAdminKeypair();
+
+      const payer = fetchPayerKeypair();
+
+      await airdrop(provider, payer.publicKey);
 
       const mint = anchor.web3.Keypair.generate();
       log("Mint", mint.publicKey.toBase58());

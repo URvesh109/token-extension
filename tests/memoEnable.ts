@@ -14,6 +14,8 @@ import {
   MEMO_PROGRAM_ID,
   fetchAdminKeypair,
   fetchReceiverKeypair,
+  fetchPayerKeypair,
+  airdrop,
 } from "./utils";
 import Debug from "debug";
 
@@ -31,8 +33,12 @@ describe("✅ token-extension: memo enable transfer", () => {
 
     const receiver = fetchReceiverKeypair();
 
-    const receiverAcc = anchor.web3.Keypair.generate();
-    log("Receiver account", receiverAcc.publicKey.toBase58());
+    const payer = fetchPayerKeypair();
+
+    await airdrop(provider, payer.publicKey);
+
+    const tokenAccount = anchor.web3.Keypair.generate();
+    log("Token account", tokenAccount.publicKey.toBase58());
 
     const mint = anchor.web3.Keypair.generate();
 
@@ -40,7 +46,7 @@ describe("✅ token-extension: memo enable transfer", () => {
 
     const mintPub = await createMint(
       provider.connection,
-      admin,
+      payer,
       admin.publicKey,
       admin.publicKey,
       decimals,
@@ -85,15 +91,15 @@ describe("✅ token-extension: memo enable transfer", () => {
         .enableMemo(accountLen)
         .accounts({
           mint: mint.publicKey,
-          receiverAcc: receiverAcc.publicKey,
-          payer: admin.publicKey,
-          receiver: receiver.publicKey,
+          tokenAccount: tokenAccount.publicKey,
+          payer: payer.publicKey,
+          wallet: receiver.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, receiver, receiverAcc],
+      signers: [admin, receiver, tokenAccount, payer],
     });
 
     log("Memo enable tx id ", memoId);
@@ -105,7 +111,7 @@ describe("✅ token-extension: memo enable transfer", () => {
         .accounts({
           mint: mint.publicKey,
           fromAcc: associatedTokenAcc,
-          toAcc: receiverAcc.publicKey,
+          toAcc: tokenAccount.publicKey,
           authority: admin.publicKey,
           memoProgram: MEMO_PROGRAM_ID,
           token2022Program: TOKEN_2022_PROGRAM_ID,

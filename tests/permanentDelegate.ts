@@ -13,6 +13,7 @@ import {
   airdrop,
   expect,
   fetchAdminKeypair,
+  fetchPayerKeypair,
   fetchReceiverKeypair,
   sendAndConfirmTransaction,
 } from "./utils";
@@ -32,10 +33,12 @@ describe("✅ token-extension: permanent delegate usage", () => {
 
     const receiver = fetchReceiverKeypair();
 
+    const payer = fetchPayerKeypair();
+
     const mint = anchor.web3.Keypair.generate();
     log("Mint", mint.publicKey.toBase58());
 
-    await airdrop(provider, receiver.publicKey);
+    await airdrop(provider, receiver.publicKey, payer.publicKey);
 
     const mintLen = new anchor.BN(
       getMintLen([ExtensionType.PermanentDelegate])
@@ -47,14 +50,14 @@ describe("✅ token-extension: permanent delegate usage", () => {
         .permanentDelegate(mintLen)
         .accounts({
           mint: mint.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, mint],
+      signers: [admin, mint, payer],
     });
 
     log("Mint initialized with permanent delegate 👇\ntxId", pTxId);
@@ -72,7 +75,7 @@ describe("✅ token-extension: permanent delegate usage", () => {
         .createAta()
         .accounts({
           mint: mint.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           associatedToken: associatedTA,
           wallet: admin.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -81,7 +84,7 @@ describe("✅ token-extension: permanent delegate usage", () => {
           associatedProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         })
         .transaction(),
-      signers: [admin],
+      signers: [admin, payer],
     });
 
     log("Admin ATA", associatedTA.toBase58());
@@ -99,7 +102,7 @@ describe("✅ token-extension: permanent delegate usage", () => {
         .createAta()
         .accounts({
           mint: mint.publicKey,
-          payer: receiver.publicKey,
+          payer: payer.publicKey,
           associatedToken: receiverATA,
           wallet: receiver.publicKey,
           systemProgram: anchor.web3.SystemProgram.programId,
@@ -108,7 +111,7 @@ describe("✅ token-extension: permanent delegate usage", () => {
           associatedProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         })
         .transaction(),
-      signers: [receiver],
+      signers: [receiver, payer],
     });
 
     log("Receiver ATA ", receiverATA.toBase58());

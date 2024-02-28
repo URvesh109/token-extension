@@ -12,6 +12,7 @@ import {
 import {
   airdrop,
   fetchAdminKeypair,
+  fetchPayerKeypair,
   fetchReceiverKeypair,
   sendAndConfirmTransaction,
 } from "./utils";
@@ -33,6 +34,10 @@ describe("✅ token-extension: transfer hook", () => {
 
     const receiver = fetchReceiverKeypair();
 
+    const payer = fetchPayerKeypair();
+
+    await airdrop(provider, receiver.publicKey, payer.publicKey);
+
     const mint = anchor.web3.Keypair.generate();
     log("Mint", mint.publicKey.toBase58());
 
@@ -45,7 +50,6 @@ describe("✅ token-extension: transfer hook", () => {
       );
     log("extraAccountMetaListPDA", extraAccountMetaListPDA.toBase58());
 
-    await airdrop(provider, receiver.publicKey);
     const decimals = 2;
 
     const mintLen = new anchor.BN(getMintLen([ExtensionType.TransferHook]));
@@ -56,14 +60,14 @@ describe("✅ token-extension: transfer hook", () => {
         .initializeHookMint(mintLen, transferHookProgram.programId)
         .accounts({
           mint: mint.publicKey,
-          payer: admin.publicKey,
+          payer: payer.publicKey,
           allMintRole: admin.publicKey,
           token2022Program: TOKEN_2022_PROGRAM_ID,
           systemProgram: anchor.web3.SystemProgram.programId,
           rent: anchor.web3.SYSVAR_RENT_PUBKEY,
         })
         .transaction(),
-      signers: [admin, mint],
+      signers: [admin, mint, payer],
     });
     log("Mint hook initialized txId ", txId);
 

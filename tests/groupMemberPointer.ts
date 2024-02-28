@@ -5,35 +5,28 @@ import {
   TOKEN_2022_PROGRAM_ID,
   ExtensionType,
   getMintLen,
-  createMint,
 } from "@solana/spl-token";
-import * as path from "path";
-import {
-  keypairFromFile,
-  rejectedWith,
-  sendAndConfirmTransaction,
-} from "./utils";
+import { fetchAdminKeypair, sendAndConfirmTransaction } from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:groupMemberPointer");
+const log = Debug("log: groupMemberPointer");
 
-describe("token-extension: group and member pointer", () => {
+describe("🚨 token-extension: intialize group and member pointer support issue 🚨", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  log("Admin ", admin.publicKey.toBase58());
+  it("🚨 missing support for intialize group and member pointer 🚨", async () => {
+    const admin = fetchAdminKeypair();
 
-  const group = anchor.web3.Keypair.generate();
-  log("Group", group.publicKey.toBase58());
+    const group = anchor.web3.Keypair.generate();
+    log("Group", group.publicKey.toBase58());
 
-  const member = anchor.web3.Keypair.generate();
-  log("Member", member.publicKey.toBase58());
+    const member = anchor.web3.Keypair.generate();
+    log("Member", member.publicKey.toBase58());
 
-  it("intialize group and member mint pointer", async () => {
     const mintLen = new anchor.BN(getMintLen([ExtensionType.GroupPointer]));
     const maxSize = 12;
     const decimals = 2;

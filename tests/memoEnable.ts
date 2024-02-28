@@ -9,35 +9,32 @@ import {
   createMint,
   getAccountLen,
 } from "@solana/spl-token";
-import * as path from "path";
 import {
-  keypairFromFile,
   sendAndConfirmTransaction,
   MEMO_PROGRAM_ID,
+  fetchAdminKeypair,
+  fetchReceiverKeypair,
 } from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: memoEnable");
 
-describe("token-extension: memo enable transfer", () => {
+describe("✅ token-extension: memo enable transfer", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
-  const receiver = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-
   it("enable memo transfer account", async () => {
+    const admin = fetchAdminKeypair();
+
+    const receiver = fetchReceiverKeypair();
+
     const receiverAcc = anchor.web3.Keypair.generate();
-    log("Receiver acc", receiverAcc.publicKey.toBase58());
+    log("Receiver account", receiverAcc.publicKey.toBase58());
 
     const mint = anchor.web3.Keypair.generate();
-    log("Mint", mint.publicKey.toBase58());
 
     const decimals = 2;
 
@@ -51,7 +48,7 @@ describe("token-extension: memo enable transfer", () => {
       { commitment: "finalized", skipPreflight: true },
       TOKEN_2022_PROGRAM_ID
     );
-    log("Mint created ", mintPub.toBase58());
+    log("Mint ", mintPub.toBase58());
 
     const associatedTokenAcc = await createAssociatedTokenAccountIdempotent(
       provider.connection,
@@ -62,7 +59,7 @@ describe("token-extension: memo enable transfer", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Admin ATA created ", associatedTokenAcc.toBase58());
+    log("Admin ATA ", associatedTokenAcc.toBase58());
 
     const txId = await mintTo(
       provider.connection,
@@ -76,7 +73,7 @@ describe("token-extension: memo enable transfer", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Minted to txId ", txId);
+    log("Minted to admin ATA txId ", txId);
 
     const accountLen = new anchor.BN(
       getAccountLen([ExtensionType.MemoTransfer])

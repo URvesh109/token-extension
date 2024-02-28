@@ -11,20 +11,19 @@ import {
   mintTo,
   createAssociatedTokenAccountIdempotent,
 } from "@solana/spl-token";
-import * as path from "path";
 import {
   airdrop,
-  keypairFromFile,
+  fetchAdminKeypair,
+  fetchReceiverKeypair,
   rejectedWith,
   sendAndConfirmTransaction,
 } from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:cpiGuard");
+const log = Debug("log: cpiGuard");
+const warning = Debug("log: ");
 
-log("CPI Guard cannot be enabled or disabled via CPI.");
-
-describe("token-extension: cpi guard enable", () => {
+describe("✅ token-extension: cpi guard enable", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -32,20 +31,21 @@ describe("token-extension: cpi guard enable", () => {
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
   const opaqueProgram = anchor.workspace.Opaque as Program<Opaque>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  const receiver = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-
   it("enable cpi guard account", async () => {
+    console.log();
+    warning("🔧 CPI Guard cannot be enabled or disabled via CPI 🔧");
+    console.log();
+
+    const admin = fetchAdminKeypair();
+
+    const receiver = fetchReceiverKeypair();
+
     await airdrop(provider, receiver.publicKey);
 
     const tokenAccount = anchor.web3.Keypair.generate();
     log("TokenAccount", tokenAccount.publicKey.toBase58());
 
     const mint = anchor.web3.Keypair.generate();
-    log("Mint", mint.publicKey.toBase58());
-
     const decimals = 2;
 
     const mintPub = await createMint(
@@ -58,7 +58,7 @@ describe("token-extension: cpi guard enable", () => {
       { commitment: "finalized", skipPreflight: true },
       TOKEN_2022_PROGRAM_ID
     );
-    log("Mint created ", mintPub.toBase58());
+    log("Mint initialized ", mintPub.toBase58());
 
     const accountLen = new anchor.BN(getAccountLen([ExtensionType.CpiGuard]));
 
@@ -94,7 +94,7 @@ describe("token-extension: cpi guard enable", () => {
       transaction,
       signers: [admin, tokenAccount],
     });
-    log("Cpi guarded txId ", txId);
+    log("TokenAccount with CPI Guard txId ", txId);
 
     const mintTotxId = await mintTo(
       provider.connection,
@@ -108,7 +108,7 @@ describe("token-extension: cpi guard enable", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Minted to admin token acc txId ", mintTotxId);
+    log("Minted to admin tokenAccount txId ", mintTotxId);
 
     // without cpi guard
     const associatedTokenAcc = await createAssociatedTokenAccountIdempotent(
@@ -120,7 +120,7 @@ describe("token-extension: cpi guard enable", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Admin ATA created ", associatedTokenAcc.toBase58());
+    log("Admin ATA", associatedTokenAcc.toBase58());
 
     const mintToAtaId = await mintTo(
       provider.connection,
@@ -134,7 +134,7 @@ describe("token-extension: cpi guard enable", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Minted to admint ATA txId ", mintToAtaId);
+    log("Minted to admin ATA txId ", mintToAtaId);
 
     // without cpi guard
     const receiverATA = await createAssociatedTokenAccountIdempotent(
@@ -146,14 +146,14 @@ describe("token-extension: cpi guard enable", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Receiver ATA created ", receiverATA.toBase58());
+    log("Receiver ATA without CPI Guard", receiverATA.toBase58());
 
     const receiverBalBeforeCpi = await provider.connection.getBalance(
       receiver.publicKey,
       "finalized"
     );
 
-    log("Receiver sol balance before cpi ", receiverBalBeforeCpi);
+    log("Receiver sol balance before CPI transfer", receiverBalBeforeCpi);
 
     const transferTokenTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
@@ -173,16 +173,16 @@ describe("token-extension: cpi guard enable", () => {
       signers: [admin],
     });
 
-    log("Transfer token without CPI GUARD txId ", transferTokenTxId);
+    log("Transfer token without CPI Guard account txId ", transferTokenTxId);
 
     const receiverBalAfterCpi = await provider.connection.getBalance(
       receiver.publicKey,
       "finalized"
     );
 
-    log("Receiver sol balance after cpi ", receiverBalAfterCpi);
+    log("Receiver sol balance after CPI transfer", receiverBalAfterCpi);
 
-    log("Failed: Transfer token with CPI GUARD");
+    log("Failed: CPI guard account");
 
     await rejectedWith(
       sendAndConfirmTransaction({

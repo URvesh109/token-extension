@@ -7,30 +7,29 @@ import {
   getMintLen,
   getAccountLen,
 } from "@solana/spl-token";
-import * as path from "path";
-import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import { fetchAdminKeypair, runTest, sendAndConfirmTransaction } from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: immutableOwner");
 
-describe("tokenExtension: immutableOwner", () => {
+describe("✅ tokenExtension: immutableOwner", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
-  const account = anchor.web3.Keypair.generate();
-  log("Account", account.publicKey.toBase58());
-
   it(
     "set tokenAccount owner as immutable",
     runTest(async () => {
+      const admin = fetchAdminKeypair();
+
+      const mint = anchor.web3.Keypair.generate();
+      log("Mint", mint.publicKey.toBase58());
+
+      const account = anchor.web3.Keypair.generate();
+      log("Account", account.publicKey.toBase58());
+
       await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods

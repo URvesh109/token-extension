@@ -6,27 +6,27 @@ import {
   ExtensionType,
   getMintLen,
 } from "@solana/spl-token";
-import * as path from "path";
-import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import { fetchAdminKeypair, runTest, sendAndConfirmTransaction } from "./utils";
 import { assert } from "chai";
 import Debug from "debug";
 
-const log = Debug("log: mintCloseAuth");
+const log = Debug("log: mintCloseAuthority");
 
-describe("token-extension: mintCloseAuthority and closeMintAccount", () => {
+describe("✅ token-extension: mintCloseAuthority and closeMintAccount", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
   it(
     "Set mintCloseAuthority and closeMintAccount",
     runTest(async () => {
+      const admin = fetchAdminKeypair();
+
+      const mint = anchor.web3.Keypair.generate();
+      log("Mint", mint.publicKey.toBase58());
+
       // Add your test here.
       await sendAndConfirmTransaction({
         connection: provider.connection,

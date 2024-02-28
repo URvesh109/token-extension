@@ -8,34 +8,34 @@ import {
 } from "@solana/spl-token";
 import * as path from "path";
 import {
-  keypairFromFile,
   sendAndConfirmTransaction,
   airdrop,
   assert,
+  fetchAdminKeypair,
+  keypairFromFile,
 } from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:metadaPointer & tokenMetadata");
+const log = Debug("log: metadataPointer");
 
-describe("token-extension: metadata pointer and token metadata", () => {
+describe("✅ token-extension: metadata pointer and token metadata", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  log("Admin ", admin.publicKey.toBase58());
-
-  const fakeUpdateAuth = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-  log("FakeUpdateAuth ", fakeUpdateAuth.publicKey.toBase58());
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
   it("intialize metadata pointer and token metadata", async () => {
+    const admin = fetchAdminKeypair();
+
+    const fakeUpdateAuth = keypairFromFile(
+      path.join(__dirname, "../keypairs/receiver.json")
+    );
+    log("FakeUpdateAuth", fakeUpdateAuth.publicKey.toBase58());
+
+    const mint = anchor.web3.Keypair.generate();
+    log("Mint", mint.publicKey.toBase58());
+
     await airdrop(provider, fakeUpdateAuth.publicKey);
     // case ExtensionType.TokenMetadata:
     //         throw Error(`Cannot get type length for variable extension type: ${e}`);

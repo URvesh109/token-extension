@@ -7,11 +7,10 @@ import {
   getMintLen,
   AccountState,
 } from "@solana/spl-token";
-import * as path from "path";
 import {
   assert,
+  fetchAdminKeypair,
   getTokenExtensionState,
-  keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
 } from "./utils";
@@ -19,22 +18,22 @@ import Debug from "debug";
 
 const log = Debug("log: defaultAccState");
 
-describe("tokenExtension: DefaultAccountState", () => {
+describe("✅ tokenExtension: default account state", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
   it(
-    "frozen and initialized defaultState",
+    "frozen and initialize defaultState",
     runTest(async () => {
-      await sendAndConfirmTransaction({
+      const admin = fetchAdminKeypair();
+
+      const mint = anchor.web3.Keypair.generate();
+      log("Mint", mint.publicKey.toBase58());
+
+      const mintId = await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods
           .defaultAccountState(
@@ -51,6 +50,8 @@ describe("tokenExtension: DefaultAccountState", () => {
           .transaction(),
         signers: [admin, mint],
       });
+
+      log("Mint with defaultAccountState txId", mintId);
 
       let result = await getTokenExtensionState(
         provider.connection,

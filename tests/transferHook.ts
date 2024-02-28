@@ -9,13 +9,17 @@ import {
   mintTo,
   createAssociatedTokenAccountIdempotent,
 } from "@solana/spl-token";
-import * as path from "path";
-import { airdrop, keypairFromFile, sendAndConfirmTransaction } from "./utils";
+import {
+  airdrop,
+  fetchAdminKeypair,
+  fetchReceiverKeypair,
+  sendAndConfirmTransaction,
+} from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:transferHook");
+const log = Debug("log: transferHook");
 
-describe("token-extension: transfer hook", () => {
+describe("✅ token-extension: transfer hook", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
@@ -24,24 +28,23 @@ describe("token-extension: transfer hook", () => {
   const transferHookProgram = anchor.workspace
     .TransferHook as Program<TransferHook>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
-  const receiver = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
-  // ExtraAccountMetaList address
-  // Store extra accounts required by the custom transfer hook instruction
-  const [extraAccountMetaListPDA] =
-    anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("extra-account-metas"), mint.publicKey.toBuffer()],
-      transferHookProgram.programId
-    );
-
   it("intialize transfer hook mint", async () => {
+    const admin = fetchAdminKeypair();
+
+    const receiver = fetchReceiverKeypair();
+
+    const mint = anchor.web3.Keypair.generate();
+    log("Mint", mint.publicKey.toBase58());
+
+    // ExtraAccountMetaList address
+    // Store extra accounts required by the custom transfer hook instruction
+    const [extraAccountMetaListPDA] =
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("extra-account-metas"), mint.publicKey.toBuffer()],
+        transferHookProgram.programId
+      );
+    log("extraAccountMetaListPDA", extraAccountMetaListPDA.toBase58());
+
     await airdrop(provider, receiver.publicKey);
     const decimals = 2;
 
@@ -87,7 +90,7 @@ describe("token-extension: transfer hook", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Admin ATA created ", associatedTokenAcc.toBase58());
+    log("Admin ATA initialized ", associatedTokenAcc.toBase58());
 
     const receiverATA = await createAssociatedTokenAccountIdempotent(
       provider.connection,
@@ -98,7 +101,7 @@ describe("token-extension: transfer hook", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Receiver ATA created ", receiverATA.toBase58());
+    log("Receiver ATA initialized ", receiverATA.toBase58());
 
     const mintToAtaId = await mintTo(
       provider.connection,

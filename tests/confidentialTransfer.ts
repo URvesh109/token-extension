@@ -4,32 +4,29 @@ import { TokenExtension } from "../target/types/token_extension";
 import {
   TOKEN_2022_PROGRAM_ID,
   ExtensionType,
-  getMintLen,
   getAccountLen,
 } from "@solana/spl-token";
-import * as path from "path";
-import { keypairFromFile, sendAndConfirmTransaction, assert } from "./utils";
+import { sendAndConfirmTransaction, fetchAdminKeypair } from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:confidentialTransfer");
+const log = Debug("log: confidentialTransfer");
 
-describe("token-extension: confidential transfer", () => {
+describe("🚧🚧 token-extension: confidential transfer work in progress 🚧🚧", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  log("Admin ", admin.publicKey.toBase58());
+  it("intialize confidential", async () => {
+    const admin = fetchAdminKeypair();
 
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
+    const mint = anchor.web3.Keypair.generate();
+    log("Mint", mint.publicKey.toBase58());
 
-  const tokenAccount = anchor.web3.Keypair.generate();
-  log("TokenAccount", tokenAccount.publicKey.toBase58());
+    const tokenAccount = anchor.web3.Keypair.generate();
+    log("TokenAccount", tokenAccount.publicKey.toBase58());
 
-  it("intialize metadata pointer and token metadata", async () => {
     const mintLen = new anchor.BN(
       // getMintLen([ExtensionType.ConfidentialTransferMint]) won't work so hard coded 235 bytes
       235
@@ -50,11 +47,10 @@ describe("token-extension: confidential transfer", () => {
         .transaction(),
       signers: [admin, mint],
     });
-    log("Mint initialzed id ", mintTxId);
+    log("Mint initialized id ", mintTxId);
 
     const accountLen = new anchor.BN(
-      getAccountLen([])
-      // getAccountLen([ExtensionType.ConfidentialTransferAccount])
+      getAccountLen([ExtensionType.ConfidentialTransferAccount])
     );
 
     const accTxId = await sendAndConfirmTransaction({

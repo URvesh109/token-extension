@@ -1,25 +1,27 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Opaque } from "../target/types/opaque";
-import * as path from "path";
-import { keypairFromFile, sendAndConfirmTransaction } from "./utils";
+import {
+  fetchAdminKeypair,
+  fetchReceiverKeypair,
+  sendAndConfirmTransaction,
+} from "./utils";
 import Debug from "debug";
 
-const log = Debug("log:solTransfer");
+const log = Debug("log: solTransfer");
 
-describe("Sol transfer", () => {
+describe("✅ sol transfer", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.Opaque as Program<Opaque>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  const receiver = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-
   it("transfer sol from admin to receiver", async () => {
+    const admin = fetchAdminKeypair();
+
+    const receiver = fetchReceiverKeypair();
+
     const transaction = await program.methods
       .transferSol(new anchor.BN(10 * anchor.web3.LAMPORTS_PER_SOL))
       .accounts({
@@ -36,6 +38,6 @@ describe("Sol transfer", () => {
       transaction,
       signers: [admin],
     });
-    log("Sol transfer id ", txId);
+    log("TxId ", txId);
   });
 });

@@ -9,27 +9,26 @@ import {
   createAssociatedTokenAccountIdempotent,
   mintTo,
 } from "@solana/spl-token";
-import * as path from "path";
-import { keypairFromFile, runTest, sendAndConfirmTransaction } from "./utils";
+import { fetchAdminKeypair, runTest, sendAndConfirmTransaction } from "./utils";
 import Debug from "debug";
 
-const log = Debug("log: IBT");
+const log = Debug("log: interestToken");
 
-describe("tokenExtension: Interest Bearing Token", () => {
+describe("✅ tokenExtension: interest bearing token", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
   it(
     "initialized interest bearing token",
     runTest(async () => {
+      const admin = fetchAdminKeypair();
+
+      const mint = anchor.web3.Keypair.generate();
+      log("Mint", mint.publicKey.toBase58());
+
       const id = await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods
@@ -48,7 +47,7 @@ describe("tokenExtension: Interest Bearing Token", () => {
           .transaction(),
         signers: [admin, mint],
       });
-      log("tx ", id);
+      log("Initialized mint with fee txId ", id);
 
       const associatedTokenAcc = await createAssociatedTokenAccountIdempotent(
         provider.connection,
@@ -58,7 +57,7 @@ describe("tokenExtension: Interest Bearing Token", () => {
         { commitment: "finalized", skipPreflight: true },
         TOKEN_2022_PROGRAM_ID
       );
-      log("Admin ATA created ", associatedTokenAcc.toBase58());
+      log("Admin ATA ", associatedTokenAcc.toBase58());
 
       const txId = await mintTo(
         provider.connection,
@@ -86,7 +85,7 @@ describe("tokenExtension: Interest Bearing Token", () => {
         TOKEN_2022_PROGRAM_ID
       );
 
-      log("TokenA ", ata.amount.toString());
+      log("Admint ATA", ata.amount.toString());
 
       const amountTx = await program.methods
         .amountToUiAmount(new anchor.BN(ata.amount.toString()))
@@ -96,7 +95,7 @@ describe("tokenExtension: Interest Bearing Token", () => {
         })
         .view();
 
-      log("amountUi ", amountTx);
+      log("AmountUi ", amountTx);
     })
   );
 });

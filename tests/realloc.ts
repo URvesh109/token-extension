@@ -6,24 +6,22 @@ import {
   createAssociatedTokenAccountIdempotent,
   createMint,
 } from "@solana/spl-token";
-import * as path from "path";
-import { keypairFromFile, sendAndConfirmTransaction } from "./utils";
+import { fetchAdminKeypair, sendAndConfirmTransaction } from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: realloc");
 
-describe("token-extension: realloc usage", () => {
+describe("✅ token-extension: realloc usage", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
   it("realloc token account with memo transfer enable", async () => {
+    const admin = fetchAdminKeypair();
+
     const mint = anchor.web3.Keypair.generate();
-    log("Mint", mint.publicKey.toBase58());
 
     const decimals = 2;
 
@@ -37,7 +35,7 @@ describe("token-extension: realloc usage", () => {
       { commitment: "finalized", skipPreflight: true },
       TOKEN_2022_PROGRAM_ID
     );
-    log("Mint created ", mintPub.toBase58());
+    log("Mint initialized ", mintPub.toBase58());
 
     const associatedTokenAcc = await createAssociatedTokenAccountIdempotent(
       provider.connection,
@@ -48,7 +46,7 @@ describe("token-extension: realloc usage", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Admin ATA created ", associatedTokenAcc.toBase58());
+    log("Admin ATA initialized ", associatedTokenAcc.toBase58());
 
     const rTid = await sendAndConfirmTransaction({
       connection: provider.connection,
@@ -65,6 +63,6 @@ describe("token-extension: realloc usage", () => {
       signers: [admin],
     });
 
-    log("Realloc tx id ", rTid);
+    log("Realloc txId ", rTid);
   });
 });

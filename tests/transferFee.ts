@@ -7,12 +7,14 @@ import {
   getMintLen,
   createAssociatedTokenAccountIdempotent,
 } from "@solana/spl-token";
-import * as path from "path";
 import {
   assert,
+  fetchAdminKeypair,
+  fetchReceiver2Keypair,
+  fetchReceiver3Keypair,
+  fetchReceiverKeypair,
   findWithheldTokenAndRemainingAccount,
   getWithheldAmount,
-  keypairFromFile,
   runTest,
   sendAndConfirmTransaction,
 } from "./utils";
@@ -20,33 +22,27 @@ import Debug from "debug";
 
 const log = Debug("log: transferFee");
 
-describe("token-extension transfer-fee", () => {
+describe("✅ token-extension transfer fee", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-
-  const receiver = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-
-  const receiver2 = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver2.json")
-  );
-
-  const receiver3 = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver3.json")
-  );
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
   it(
     "Set transferFeeConfig",
     runTest(async () => {
+      const admin = fetchAdminKeypair();
+
+      const receiver = fetchReceiverKeypair();
+
+      const receiver2 = fetchReceiver2Keypair();
+
+      const receiver3 = fetchReceiver3Keypair();
+
+      const mint = anchor.web3.Keypair.generate();
+      log("Mint", mint.publicKey.toBase58());
+
       const feeBasisPoint = 50;
 
       await sendAndConfirmTransaction({
@@ -132,7 +128,7 @@ describe("token-extension transfer-fee", () => {
           TOKEN_2022_PROGRAM_ID
         );
 
-      log("Receiver2 ATA ", receiver3AssociatedTokenAcc.toBase58());
+      log("Receiver3 ATA ", receiver3AssociatedTokenAcc.toBase58());
 
       const transferAmount = new anchor.BN(500).mul(
         new anchor.BN(10).pow(new anchor.BN(2))
@@ -140,7 +136,7 @@ describe("token-extension transfer-fee", () => {
 
       const fee = transferAmount.muln(feeBasisPoint / 10_000);
 
-      await sendAndConfirmTransaction({
+      let id = await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods
           .transferTo(transferAmount, fee)
@@ -155,6 +151,8 @@ describe("token-extension transfer-fee", () => {
         signers: [admin],
       });
 
+      log("Transfer from admin to receiver txId", id);
+
       assert.strictEqual(
         await getWithheldAmount(
           provider.connection,
@@ -164,7 +162,7 @@ describe("token-extension transfer-fee", () => {
         fee.toNumber()
       );
 
-      await sendAndConfirmTransaction({
+      id = await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods
           .withdrawWithheldAccount()
@@ -183,6 +181,7 @@ describe("token-extension transfer-fee", () => {
           .transaction(),
         signers: [admin],
       });
+      log("withdrawWithheldAccount txId", id);
 
       assert.strictEqual(
         await getWithheldAmount(
@@ -226,7 +225,7 @@ describe("token-extension transfer-fee", () => {
         signers: [admin],
       });
 
-      await sendAndConfirmTransaction({
+      id = await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods
           .harvestWithheldToken()
@@ -243,6 +242,7 @@ describe("token-extension transfer-fee", () => {
           .transaction(),
         signers: [admin],
       });
+      log("harvestWithheldToken txId", id);
 
       assert.strictEqual(
         await getWithheldAmount(
@@ -253,7 +253,7 @@ describe("token-extension transfer-fee", () => {
         fee.toNumber() * 2
       );
 
-      await sendAndConfirmTransaction({
+      id = await sendAndConfirmTransaction({
         connection: provider.connection,
         transaction: await program.methods
           .withdrawWithheldMint()
@@ -266,6 +266,7 @@ describe("token-extension transfer-fee", () => {
           .transaction(),
         signers: [admin],
       });
+      log("withdrawWithheldMint txId", id);
 
       assert.strictEqual(
         await getWithheldAmount(

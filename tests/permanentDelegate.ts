@@ -9,36 +9,32 @@ import {
   getMintLen,
   getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
-import * as path from "path";
 import {
   airdrop,
   expect,
-  keypairFromFile,
+  fetchAdminKeypair,
+  fetchReceiverKeypair,
   sendAndConfirmTransaction,
 } from "./utils";
 import Debug from "debug";
 
 const log = Debug("log: permanentDelegate");
 
-describe("token-extension: permanent delegate usage", () => {
+describe("✅ token-extension: permanent delegate usage", () => {
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
   const program = anchor.workspace.TokenExtension as Program<TokenExtension>;
 
-  const admin = keypairFromFile(path.join(__dirname, "../keypairs/admin.json"));
-  log("Admin", admin.publicKey.toBase58());
-
-  const receiver = keypairFromFile(
-    path.join(__dirname, "../keypairs/receiver.json")
-  );
-  log("Receiver", receiver.publicKey.toBase58());
-
-  const mint = anchor.web3.Keypair.generate();
-  log("Mint", mint.publicKey.toBase58());
-
   it("initialize mint with permanent delegate, transfer to and burn receiver token using delegate authority", async () => {
+    const admin = fetchAdminKeypair();
+
+    const receiver = fetchReceiverKeypair();
+
+    const mint = anchor.web3.Keypair.generate();
+    log("Mint", mint.publicKey.toBase58());
+
     await airdrop(provider, receiver.publicKey);
 
     const mintLen = new anchor.BN(
@@ -70,8 +66,6 @@ describe("token-extension: permanent delegate usage", () => {
       TOKEN_2022_PROGRAM_ID
     );
 
-    log("Admin ata 👇", associatedTA.toBase58());
-
     const ataId = await sendAndConfirmTransaction({
       connection: provider.connection,
       transaction: await program.methods
@@ -90,7 +84,7 @@ describe("token-extension: permanent delegate usage", () => {
       signers: [admin],
     });
 
-    log("txId", ataId);
+    log("Admin ATA", associatedTA.toBase58());
 
     const receiverATA = await getAssociatedTokenAddress(
       mint.publicKey,
@@ -98,7 +92,6 @@ describe("token-extension: permanent delegate usage", () => {
       false,
       TOKEN_2022_PROGRAM_ID
     );
-    log("Receiver ata 👇", receiverATA.toBase58());
 
     const recTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
@@ -118,7 +111,7 @@ describe("token-extension: permanent delegate usage", () => {
       signers: [receiver],
     });
 
-    log("Receiver ata tx id", recTxId);
+    log("Receiver ATA ", receiverATA.toBase58());
 
     const mintToRecAtaId = await sendAndConfirmTransaction({
       connection: provider.connection,
@@ -134,7 +127,7 @@ describe("token-extension: permanent delegate usage", () => {
       signers: [admin],
     });
 
-    log("Minted to admin ata 👇\ntxId", mintToRecAtaId);
+    log("Minted to admin ATA 👇\ntxId", mintToRecAtaId);
 
     const transTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
@@ -151,7 +144,7 @@ describe("token-extension: permanent delegate usage", () => {
       signers: [admin],
     });
 
-    log("Transfer token from admin to receiver ata 👇\ntxId", transTxId);
+    log("Transfer from admin to receiver ATA 👇\ntxId", transTxId);
 
     const burnTxId = await sendAndConfirmTransaction({
       connection: provider.connection,
@@ -166,7 +159,7 @@ describe("token-extension: permanent delegate usage", () => {
         .transaction(),
       signers: [admin],
     });
-    log("Burn txId", burnTxId);
+    log("Burned by delegate authority instead of owner 👇\ntxId", burnTxId);
 
     const receiverAtaAfter = await getOrCreateAssociatedTokenAccount(
       provider.connection,

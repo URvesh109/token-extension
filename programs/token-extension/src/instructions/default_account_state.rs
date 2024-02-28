@@ -90,7 +90,8 @@ pub(crate) fn handler_for_default_account_state(
 pub struct UpdateDefaultAccountState<'info> {
     #[account(
         mut,
-        mint::token_program = Token2022::id()
+        mint::token_program = Token2022::id(),
+        mint::freeze_authority = freeze_auth
     )]
     pub mint: InterfaceAccount<'info, Mint>,
     pub token_2022_program: Program<'info, Token2022>,

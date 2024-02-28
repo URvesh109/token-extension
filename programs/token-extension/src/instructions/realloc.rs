@@ -35,9 +35,9 @@ pub(crate) fn handler_to_realloc(ctx: Context<Realloc>) -> Result<()> {
     invoke(
         &ix,
         &[
-            all.token_2022_program.to_account_info(),
             all.token_account.to_account_info(),
             all.all_mint_role.to_account_info(),
+            all.payer.to_account_info(),
         ],
     )?;
 
@@ -51,7 +51,6 @@ pub(crate) fn handler_to_realloc(ctx: Context<Realloc>) -> Result<()> {
     invoke(
         &ix,
         &[
-            all.token_2022_program.to_account_info(),
             all.token_account.to_account_info(),
             all.all_mint_role.to_account_info(),
         ],

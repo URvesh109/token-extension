@@ -100,7 +100,8 @@ pub(crate) fn handler(
 pub struct MintToAccount<'info> {
     #[account(
         mut,
-        mint::token_program = Token2022::id()
+        mint::token_program = Token2022::id(),
+        mint::authority = authority
     )]
     pub mint: InterfaceAccount<'info, Mint>,
     pub token_2022_program: Interface<'info, TokenInterface>,

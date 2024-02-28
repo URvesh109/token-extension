@@ -17,7 +17,8 @@ use {
 #[derive(Accounts)]
 pub struct CpiGuardAccount<'info> {
     #[account(
-        mint::token_program = Token2022::id()
+        mint::token_program = Token2022::id(),
+        mint::authority = wallet
     )]
     pub mint: InterfaceAccount<'info, Mint>,
     #[account(
@@ -64,6 +65,7 @@ pub(crate) fn handler_to_initialize_token_account(
         &[
             all.wallet.to_account_info(),
             all.token_acc.to_account_info(),
+            all.payer.to_account_info(),
         ],
     )?;
 
@@ -129,6 +131,7 @@ pub(crate) fn handler_to_transfer_token(
     decimals: u8,
 ) -> Result<()> {
     let all = ctx.accounts;
+    require!(amount > 0, ErrorCode::InvalidAmount);
 
     transfer_sol(all.transfer_sol_cpi(), sol_to_lamports(1.1))?;
     transfer_checked(all.transfer_checked_cpi(), amount, decimals)?;

@@ -92,11 +92,7 @@ pub(crate) fn handler(ctx: Context<ImmutableOwner>, mint_len: u64, account_len: 
             account_len,
             &Token2022::id(),
         ),
-        &[
-            all.payer.to_account_info(),
-            all.account.to_account_info(),
-            // all.system_program.to_account_info(),
-        ],
+        &[all.payer.to_account_info(), all.account.to_account_info()],
     )?;
 
     initialize_immutable_owner(all.initialize_immutable_owner_cpi())?;

@@ -85,7 +85,8 @@ pub(crate) fn handler_to_initialize_confidential_mint(
 #[derive(Accounts)]
 pub struct InitializeConfidentialAccount<'info> {
     #[account(
-        mint::token_program = Token2022::id()
+        mint::token_program = Token2022::id(),
+        mint::authority = owner
     )]
     pub mint: InterfaceAccount<'info, Mint>,
     #[account(
@@ -132,7 +133,6 @@ pub(crate) fn handler_to_initialize_confidential_account(
         &[
             all.payer.to_account_info(),
             all.token_account.to_account_info(),
-            // all.system_program.to_account_info(),
         ],
     )?;
 

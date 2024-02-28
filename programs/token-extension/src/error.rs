@@ -22,4 +22,6 @@ pub enum ErrorCode {
     InvalidUri,
     #[msg("Provided address is not group address")]
     InvalidGroupAddress,
+    #[msg("Amount is invalid")]
+    InvalidAmount,
 }

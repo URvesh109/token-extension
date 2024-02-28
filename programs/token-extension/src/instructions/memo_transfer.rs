@@ -23,12 +23,12 @@ pub struct EnableMemo<'info> {
     #[account(
         mut,
         owner= System::id() @ ErrorCode::InvalidAccountOwner,
-        constraint = receiver_acc.data_is_empty() @ ErrorCode::AlreadyInUse
+        constraint = token_account.data_is_empty() @ ErrorCode::AlreadyInUse
     )]
-    pub receiver_acc: Signer<'info>,
+    pub token_account: Signer<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
-    pub receiver: Signer<'info>,
+    pub wallet: Signer<'info>,
     pub token_2022_program: Program<'info, Token2022>,
     pub system_program: Program<'info, System>,
     pub rent: Sysvar<'info, Rent>,
@@ -40,8 +40,8 @@ impl<'info> EnableMemo<'info> {
             self.token_2022_program.to_account_info(),
             InitializeAccount3 {
                 mint: self.mint.to_account_info(),
-                account: self.receiver_acc.to_account_info(),
-                authority: self.receiver.to_account_info(),
+                account: self.token_account.to_account_info(),
+                authority: self.wallet.to_account_info(),
             },
         )
     }
@@ -53,14 +53,14 @@ pub(crate) fn handler_to_enable_memo(ctx: Context<EnableMemo>, account_len: u64)
     invoke(
         &system_instruction::create_account(
             all.payer.key,
-            all.receiver_acc.key,
+            all.token_account.key,
             Rent::get()?.minimum_balance(account_len as usize),
             account_len,
             &Token2022::id(),
         ),
         &[
             all.payer.to_account_info(),
-            all.receiver_acc.to_account_info(),
+            all.token_account.to_account_info(),
         ],
     )?;
 
@@ -68,8 +68,8 @@ pub(crate) fn handler_to_enable_memo(ctx: Context<EnableMemo>, account_len: u64)
 
     let ix = enable_required_transfer_memos(
         all.token_2022_program.key,
-        all.receiver_acc.key,
-        all.receiver.key,
+        all.token_account.key,
+        all.wallet.key,
         &[],
     )?;
 
@@ -77,8 +77,8 @@ pub(crate) fn handler_to_enable_memo(ctx: Context<EnableMemo>, account_len: u64)
         &ix,
         &[
             all.token_2022_program.to_account_info(),
-            all.receiver_acc.to_account_info(),
-            all.receiver.to_account_info(),
+            all.token_account.to_account_info(),
+            all.wallet.to_account_info(),
         ],
     )?;
 
@@ -133,6 +133,8 @@ pub(crate) fn handler_to_memo_transfer(
     decimals: u8,
 ) -> Result<()> {
     let all = ctx.accounts;
+
+    require!(amount > 0, ErrorCode::InvalidAmount);
 
     build_memo(all.build_memo_cpi(), "Testing memo string".as_bytes())?;
 

@@ -10,7 +10,8 @@ use {
 pub struct CloseMintAccount<'info> {
     #[account(
         mut,
-        mint::token_program = Token2022::id()
+        mint::token_program = Token2022::id(),
+        mint::authority = authority
     )]
     pub mint: InterfaceAccount<'info, Mint>,
     pub token_2022_program: Program<'info, Token2022>,

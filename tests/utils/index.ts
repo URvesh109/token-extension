@@ -20,6 +20,14 @@ export const fetchAdminKeypair = (): anchor.web3.Keypair => {
   return admin;
 };
 
+export const fetchPayerKeypair = (): anchor.web3.Keypair => {
+  const payer = keypairFromFile(
+    path.join(__dirname, "../../keypairs/payer.json")
+  );
+  log("Payer ", payer.publicKey.toBase58());
+  return payer;
+};
+
 export const fetchReceiverKeypair = (): anchor.web3.Keypair => {
   const receiver = keypairFromFile(
     path.join(__dirname, "../../keypairs/receiver.json")

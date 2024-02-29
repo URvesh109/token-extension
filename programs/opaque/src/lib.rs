@@ -9,6 +9,7 @@ pub mod opaque {
 
     use super::*;
 
+    // Used to demonstrate that the CPI Guarded account restrict opaque program call
     pub fn transfer_sol(ctx: Context<TransferSol>, lamports: u64) -> Result<()> {
         let all = ctx.accounts;
         let ix = transfer(all.from_wallet.key, all.to_wallet.key, lamports);

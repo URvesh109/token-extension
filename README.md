@@ -33,3 +33,11 @@ This program demonstrates the usage of Token-2022 extension using [Anchor CPI](h
    $ yarn or npm install
    $ anchor run all # please check the available individual test-cases in Anchor.toml
 ```
+
+## Learning Resources
+
+- [Anchor](https://www.anchor-lang.com/)
+- [SolDev](https://www.soldev.app/)
+- [SolanaCookbook](https://solanacookbook.com/#contributing)
+- [Solana Developers Guides](https://solana.com/developers/guides)
+- [Helius Dev](https://www.helius.dev/blog)

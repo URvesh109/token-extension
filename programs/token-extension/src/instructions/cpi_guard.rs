@@ -15,7 +15,7 @@ use {
 };
 
 #[derive(Accounts)]
-pub struct CpiGuardAccount<'info> {
+pub struct IntializeTokenAccount<'info> {
     #[account(
         mint::token_program = Token2022::id(),
         mint::authority = wallet
@@ -35,7 +35,7 @@ pub struct CpiGuardAccount<'info> {
     pub rent: Sysvar<'info, Rent>,
 }
 
-impl<'info> CpiGuardAccount<'info> {
+impl<'info> IntializeTokenAccount<'info> {
     fn initialize_account3_cpi(&self) -> CpiContext<'_, '_, '_, 'info, InitializeAccount3<'info>> {
         CpiContext::new(
             self.token_2022_program.to_account_info(),
@@ -49,7 +49,7 @@ impl<'info> CpiGuardAccount<'info> {
 }
 
 pub(crate) fn handler_to_initialize_token_account(
-    ctx: Context<CpiGuardAccount>,
+    ctx: Context<IntializeTokenAccount>,
     account_len: u64,
 ) -> Result<()> {
     let all = ctx.accounts;
